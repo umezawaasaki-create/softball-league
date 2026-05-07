@@ -1,0 +1,1677 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>世田谷区PTA ソフトボール 西エリアリーグ</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700;900&family=Barlow+Condensed:wght@600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a1628;
+    --navy2: #12203d;
+    --green: #1db954;
+    --green2: #17a347;
+    --yellow: #f5c518;
+    --red: #e63946;
+    --gray: #8892a4;
+    --light: #e8edf5;
+    --white: #ffffff;
+    --card: #16243e;
+    --border: #1e3260;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--navy);
+    color: var(--light);
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, #0a1628 0%, #0d1f3c 60%, #0f2a50 100%);
+    border-bottom: 3px solid var(--green);
+    padding: 0 0 0 0;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(29,185,84,0.12) 0%, transparent 70%);
+  }
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 24px 22px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .logo-ball {
+    width: 56px; height: 56px;
+    background: var(--green);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+    box-shadow: 0 0 24px rgba(29,185,84,0.4);
+  }
+  .header-text h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    letter-spacing: 4px;
+    color: var(--green);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .header-text h2 {
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--white);
+    line-height: 1.2;
+  }
+  .season-badge {
+    margin-left: auto;
+    background: var(--green);
+    color: var(--navy);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    letter-spacing: 2px;
+    white-space: nowrap;
+  }
+
+  /* NAV TABS */
+  nav {
+    background: var(--navy2);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    gap: 0;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    color: var(--gray);
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 14px 24px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--white); background: rgba(255,255,255,0.04); }
+  .tab-btn.active { color: var(--green); border-bottom-color: var(--green); }
+
+  /* MAIN */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--white);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::before {
+    content: '';
+    display: block;
+    width: 5px; height: 22px;
+    background: var(--green);
+    border-radius: 3px;
+  }
+
+  /* STANDINGS TABLE */
+  .standings-wrap {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    margin-bottom: 36px;
+  }
+  .standings-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .standings-table thead tr {
+    background: var(--navy2);
+  }
+  .standings-table th {
+    padding: 12px 14px;
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--gray);
+    text-transform: uppercase;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .standings-table th:first-child { text-align: left; }
+  .standings-table tbody tr {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .standings-table tbody tr:hover { background: #1c2e50; }
+  .standings-table tbody tr:last-child { border-bottom: none; }
+  .standings-table td {
+    padding: 13px 14px;
+    text-align: center;
+    color: var(--light);
+  }
+  .standings-table td:first-child { text-align: left; font-weight: 700; }
+  .rank-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--gray);
+    margin-right: 4px;
+  }
+  .rank-num.gold { color: var(--yellow); }
+  .rank-num.silver { color: #c0c0c0; }
+  .rank-num.bronze { color: #cd7f32; }
+  .win-pct { font-weight: 700; color: var(--green); }
+
+  /* MATCH MATRIX */
+  .matrix-wrap {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    margin-bottom: 36px;
+  }
+  .matrix-table {
+    border-collapse: collapse;
+    font-size: 13px;
+    width: 100%;
+  }
+  .matrix-table th, .matrix-table td {
+    border: 1px solid var(--border);
+    padding: 0;
+  }
+  .matrix-table thead th {
+    background: var(--navy2);
+    color: var(--gray);
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    padding: 10px 8px;
+    text-align: center;
+    font-weight: 700;
+    white-space: nowrap;
+    min-width: 90px;
+  }
+  .matrix-table thead th:first-child {
+    min-width: 120px;
+    text-align: left;
+    padding-left: 14px;
+  }
+  .matrix-table tbody .row-header {
+    background: var(--navy2);
+    font-weight: 700;
+    color: var(--light);
+    font-size: 13px;
+    padding: 10px 14px;
+    white-space: nowrap;
+  }
+  .matrix-cell {
+    background: var(--card);
+    text-align: center;
+    vertical-align: middle;
+    min-width: 90px;
+    height: 58px;
+  }
+  .matrix-cell.self {
+    background: repeating-linear-gradient(
+      45deg,
+      #12203d,
+      #12203d 4px,
+      #0d1a30 4px,
+      #0d1a30 8px
+    );
+  }
+  .game-results {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-items: center;
+    padding: 4px;
+  }
+  .result-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+  }
+  .score-display {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .score-win { color: var(--green); }
+  .score-lose { color: var(--red); }
+  .score-draw { color: var(--yellow); }
+  .score-sep { color: var(--gray); font-size: 11px; }
+  .game-num {
+    font-size: 10px;
+    color: var(--gray);
+    background: rgba(255,255,255,0.06);
+    border-radius: 3px;
+    padding: 1px 4px;
+  }
+  .enter-btn {
+    background: rgba(29,185,84,0.15);
+    border: 1px dashed rgba(29,185,84,0.4);
+    color: var(--green);
+    border-radius: 5px;
+    padding: 3px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    transition: all 0.2s;
+  }
+  .enter-btn:hover {
+    background: rgba(29,185,84,0.28);
+    border-color: var(--green);
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 420px;
+    padding: 28px;
+    transform: translateY(20px);
+    transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal h3 {
+    font-size: 17px;
+    font-weight: 900;
+    color: var(--white);
+    margin-bottom: 6px;
+  }
+  .modal-subtitle {
+    font-size: 12px;
+    color: var(--gray);
+    margin-bottom: 22px;
+  }
+  .game-header {
+    background: var(--navy2);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .game-badge {
+    font-size: 11px;
+    background: var(--green);
+    color: var(--navy);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+  }
+  .field-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .field-row label {
+    font-size: 12px;
+    color: var(--gray);
+    width: 70px;
+    flex-shrink: 0;
+  }
+  .field-row input, .field-row select {
+    flex: 1;
+    background: var(--navy);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--white);
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 14px;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .field-row input:focus, .field-row select:focus {
+    border-color: var(--green);
+  }
+  .score-inputs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+  }
+  .score-inputs input {
+    width: 64px;
+    text-align: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    padding: 9px 6px;
+  }
+  .score-vs {
+    color: var(--gray);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 22px;
+  }
+  .btn-save {
+    flex: 1;
+    background: var(--green);
+    color: var(--navy);
+    border: none;
+    border-radius: 8px;
+    padding: 11px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-save:hover { background: var(--green2); }
+  .btn-cancel {
+    background: rgba(255,255,255,0.06);
+    color: var(--gray);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 20px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-cancel:hover { color: var(--white); background: rgba(255,255,255,0.1); }
+  .btn-delete {
+    background: rgba(230,57,70,0.12);
+    color: var(--red);
+    border: 1px solid rgba(230,57,70,0.3);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-delete:hover { background: rgba(230,57,70,0.22); }
+
+  /* GROUND BOARD */
+  .ground-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .btn-add-ground {
+    background: var(--green);
+    color: var(--navy);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-add-ground:hover { background: var(--green2); }
+  .ground-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+  }
+  .ground-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    transition: border-color 0.2s, transform 0.15s;
+    position: relative;
+  }
+  .ground-card:hover {
+    border-color: rgba(29,185,84,0.4);
+    transform: translateY(-2px);
+  }
+  .ground-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .ground-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--white);
+  }
+  .ground-team-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: rgba(29,185,84,0.15);
+    color: var(--green);
+    border: 1px solid rgba(29,185,84,0.3);
+    white-space: nowrap;
+    margin-left: 8px;
+  }
+  .ground-info {
+    font-size: 13px;
+    color: var(--gray);
+    margin-bottom: 6px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .ground-info span { color: var(--light); }
+  .ground-note {
+    font-size: 12px;
+    color: var(--gray);
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+  .ground-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .btn-recruit {
+    flex: 1;
+    background: rgba(245,197,24,0.15);
+    color: var(--yellow);
+    border: 1px solid rgba(245,197,24,0.35);
+    border-radius: 7px;
+    padding: 8px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .btn-recruit:hover { background: rgba(245,197,24,0.28); }
+  .btn-recruit.active {
+    background: rgba(245,197,24,0.25);
+    border-color: var(--yellow);
+  }
+  .recruit-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(245,197,24,0.2);
+    color: var(--yellow);
+    border: 1px solid rgba(245,197,24,0.4);
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+  .btn-del-ground {
+    background: rgba(230,57,70,0.08);
+    color: var(--red);
+    border: 1px solid rgba(230,57,70,0.25);
+    border-radius: 7px;
+    padding: 8px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-del-ground:hover { background: rgba(230,57,70,0.18); }
+  .no-ground {
+    grid-column: 1/-1;
+    text-align: center;
+    color: var(--gray);
+    padding: 48px 20px;
+    font-size: 14px;
+  }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    font-size: 12px;
+    color: var(--gray);
+    align-items: center;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  /* GROUND MODAL */
+  .ground-modal textarea {
+    width: 100%;
+    background: var(--navy);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--white);
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 13px;
+    padding: 9px 12px;
+    outline: none;
+    resize: vertical;
+    min-height: 72px;
+    transition: border-color 0.2s;
+  }
+  .ground-modal textarea:focus { border-color: var(--green); }
+  .field-label {
+    font-size: 12px;
+    color: var(--gray);
+    margin-bottom: 6px;
+    display: block;
+  }
+  .field-group { margin-bottom: 14px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: var(--green);
+    color: var(--navy);
+    font-weight: 700;
+    font-size: 14px;
+    padding: 10px 24px;
+    border-radius: 24px;
+    z-index: 2000;
+    transition: transform 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    .header-inner { flex-wrap: wrap; }
+    .season-badge { margin-left: 0; }
+    .tab-btn { padding: 12px 14px; font-size: 12px; }
+    main { padding: 20px 12px 48px; }
+    .matrix-table thead th { min-width: 72px; font-size: 10px; }
+    .matrix-cell { min-width: 72px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo-ball">⚾</div>
+    <div class="header-text">
+      <h1>Setagaya Ward PTA Softball</h1>
+      <h2>西エリアリーグ大会</h2>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;margin-left:auto;">
+      <div class="season-badge">2025年度</div>
+      <span id="sync-status" style="font-size:11px;color:var(--gray);">--</span>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-inner">
+    <button class="tab-btn active" onclick="switchTab('standings')">順位表</button>
+    <button class="tab-btn" onclick="switchTab('matrix')">対戦表</button>
+    <button class="tab-btn" onclick="switchTab('grounds')">グランド募集</button>
+    <button class="tab-btn" onclick="switchTab('schedule')">対戦一覧</button>
+  </div>
+</nav>
+
+<main>
+  <!-- ===== STANDINGS TAB ===== -->
+  <div class="tab-panel active" id="tab-standings">
+    <div class="section-title">順位表</div>
+    <div class="standings-wrap">
+      <table class="standings-table">
+        <thead>
+          <tr>
+            <th>順位</th>
+            <th>チーム</th>
+            <th>試合</th>
+            <th>勝</th>
+            <th>負</th>
+            <th>引分</th>
+            <th>未</th>
+            <th>勝率</th>
+            <th>得点</th>
+            <th>失点</th>
+          </tr>
+        </thead>
+        <tbody id="standings-body"></tbody>
+      </table>
+    </div>
+    <div class="section-title">全試合 進捗</div>
+    <div id="progress-info" style="font-size:13px; color:var(--gray); margin-bottom:10px;"></div>
+  </div>
+
+  <!-- ===== MATRIX TAB ===== -->
+  <div class="tab-panel" id="tab-matrix">
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>勝ち</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>負け</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>引分</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--gray)"></div>未実施</div>
+    </div>
+    <div class="matrix-wrap">
+      <table class="matrix-table" id="matrix-table"></table>
+    </div>
+    <p style="font-size:12px; color:var(--gray); margin-top:8px;">※ 縦＝ホーム（自チーム）、横＝アウェイ（相手チーム）。各カードに2試合分の結果が入ります。</p>
+  </div>
+
+  <!-- ===== GROUNDS TAB ===== -->
+  <div class="tab-panel" id="tab-grounds">
+    <div class="ground-header">
+      <div class="section-title" style="margin-bottom:0">グランド情報・対戦募集</div>
+      <button class="btn-add-ground" onclick="openGroundModal()">＋ グランドを登録する</button>
+    </div>
+    <div class="ground-grid" id="ground-grid">
+      <div class="no-ground">まだグランドが登録されていません。<br>上のボタンから登録してください。</div>
+    </div>
+  </div>
+
+  <!-- ===== SCHEDULE TAB ===== -->
+  <div class="tab-panel" id="tab-schedule">
+    <div class="section-title">確定済み対戦一覧</div>
+    <div id="schedule-list"></div>
+  </div>
+</main>
+
+<!-- ===== RESULT INPUT MODAL ===== -->
+<div class="modal-overlay" id="result-modal">
+  <div class="modal" style="max-width:480px;">
+    <h3>試合結果を入力</h3>
+    <div class="modal-subtitle" id="modal-pair-label"></div>
+    <div id="games-container"></div>
+    <div class="modal-actions">
+      <button class="btn-delete" onclick="clearResults()" id="btn-clear" style="display:none">クリア</button>
+      <button class="btn-cancel" onclick="closeModal('result-modal')">キャンセル</button>
+      <button class="btn-save" onclick="saveResults()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Winner selector */
+.winner-selector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.winner-btn {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 6px;
+  text-align: center;
+  cursor: pointer;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gray);
+  transition: all 0.18s;
+  line-height: 1.4;
+}
+.winner-btn .team-label { font-size: 13px; color: var(--light); display:block; margin-bottom:3px; }
+.winner-btn .outcome-label { font-size: 11px; }
+.winner-btn:hover { border-color: var(--gray); background: rgba(255,255,255,0.08); }
+.winner-btn.selected-win  { border-color: var(--green);  background: rgba(29,185,84,0.15);  color: var(--green); }
+.winner-btn.selected-win .team-label { color: var(--green); }
+.winner-btn.selected-lose { border-color: var(--red);    background: rgba(230,57,70,0.12);   color: var(--red); }
+.winner-btn.selected-lose .team-label { color: var(--red); }
+.winner-btn.selected-draw { border-color: var(--yellow); background: rgba(245,197,24,0.12);  color: var(--yellow); }
+.winner-btn.selected-draw .team-label { color: var(--yellow); }
+.score-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.score-team-name {
+  font-size: 12px;
+  color: var(--gray);
+  min-width: 80px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.score-input-num {
+  width: 64px;
+  text-align: center;
+  background: var(--navy);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--white);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  padding: 8px 4px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.score-input-num:focus { border-color: var(--green); }
+.score-dash { font-family: 'Barlow Condensed'; font-size: 20px; font-weight:700; color: var(--gray); }
+</style>
+
+<!-- ===== APPLY MODAL ===== -->
+<div class="modal-overlay" id="apply-modal">
+  <div class="modal" style="max-width:420px;">
+    <h3>対戦を申し込む</h3>
+    <div class="modal-subtitle" id="apply-modal-subtitle"></div>
+    <div class="field-group" style="margin-top:16px;">
+      <label class="field-label">申込チーム</label>
+      <select id="apply-team" style="width:100%;background:var(--navy);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'Zen Kaku Gothic New',sans-serif;font-size:14px;padding:9px 12px;outline:none;">
+        <option value="">選択してください</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label class="field-label">メッセージ（任意）</label>
+      <textarea id="apply-message" placeholder="例：よろしくお願いします。当日は10名で参加予定です。" style="width:100%;background:var(--navy);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'Zen Kaku Gothic New',sans-serif;font-size:13px;padding:9px 12px;outline:none;resize:vertical;min-height:80px;"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('apply-modal')">キャンセル</button>
+      <button class="btn-save" onclick="submitApply()">申し込む</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== APPLICATION LIST MODAL ===== -->
+<div class="modal-overlay" id="applist-modal">
+  <div class="modal" style="max-width:480px;">
+    <h3>応募一覧</h3>
+    <div class="modal-subtitle" id="applist-subtitle"></div>
+    <div id="applist-container" style="margin-top:16px;max-height:360px;overflow-y:auto;"></div>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn-cancel" onclick="closeModal('applist-modal')">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== GROUND INPUT MODAL ===== -->
+<div class="modal-overlay" id="ground-modal">
+  <div class="modal ground-modal">
+    <h3>グランドを登録する</h3>
+    <div class="modal-subtitle">情報を入力して対戦を募集できます</div>
+    <div class="field-group">
+      <label class="field-label">チーム名</label>
+      <div class="field-row" style="margin-bottom:0">
+        <select id="g-team" style="flex:1">
+          <option value="">選択してください</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">グランド名</label>
+      <div class="field-row" style="margin-bottom:0">
+        <input type="text" id="g-name" placeholder="例：砧公園グランド">
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">使用可能日</label>
+      <div class="field-row" style="margin-bottom:0">
+        <input type="date" id="g-date-picker" style="flex:1;background:var(--navy);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'Zen Kaku Gothic New',sans-serif;font-size:14px;padding:9px 12px;outline:none;" onchange="updateGDateDisplay()">
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">開始〜終了時刻</label>
+      <div class="field-row" style="margin-bottom:0;gap:8px;">
+        <input type="time" id="g-time-start" style="flex:1;background:var(--navy);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'Zen Kaku Gothic New',sans-serif;font-size:14px;padding:9px 12px;outline:none;" onchange="updateGDateDisplay()">
+        <span style="color:var(--gray);align-self:center;">〜</span>
+        <input type="time" id="g-time-end" style="flex:1;background:var(--navy);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'Zen Kaku Gothic New',sans-serif;font-size:14px;padding:9px 12px;outline:none;" onchange="updateGDateDisplay()">
+      </div>
+    </div>
+    <div id="g-date-preview" style="font-size:12px;color:var(--green);margin-top:-8px;margin-bottom:4px;min-height:18px;"></div>
+    <div class="field-group">
+      <label class="field-label">場所・アクセス</label>
+      <div class="field-row" style="margin-bottom:0">
+        <input type="text" id="g-location" placeholder="例：世田谷区砧公園 第3グランド">
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">連絡先・備考</label>
+      <textarea id="g-note" placeholder="例：対戦相手を募集中。連絡は xxxxxx@xxx.com まで。収容可能人数：20名程度"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('ground-modal')">キャンセル</button>
+      <button class="btn-save" onclick="saveGround()">登録する</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const TEAMS = [
+  "砧小",
+  "塚戸小",
+  "山野/希望が丘/船橋",
+  "千歳台/烏山小",
+  "桜小",
+  "経堂小",
+  "深沢小"
+];
+
+// Storage keys
+// ============================================================
+// Google Apps Script の URL をここに貼り付けてください
+// デプロイ後に表示される「ウェブアプリのURL」をコピーして↓に
+// ============================================================
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbz3AH2rwTxEeVfigTbqFCUA5H7BwK482TYkIE7cYOJUjWM4TVuBG_x4JwspOJ6mtpeA/exec';
+
+let results      = {};   // { pairKey: [game1, game2] }
+let grounds      = [];
+let applications = [];
+let isSaving     = false;
+
+// スプレッドシートへ保存
+async function save() {
+  if (!GAS_URL || GAS_URL === 'YOUR_GAS_URL_HERE') {
+    // GAS未設定時はLocalStorageにフォールバック
+    localStorage.setItem('softball_results',      JSON.stringify(results));
+    localStorage.setItem('softball_grounds',      JSON.stringify(grounds));
+    localStorage.setItem('softball_applications', JSON.stringify(applications));
+    return;
+  }
+  if (isSaving) return;
+  isSaving = true;
+  showSyncStatus('saving');
+  try {
+    // resultsをフラット配列に変換して保存
+    const resultsArr = [];
+    Object.entries(results).forEach(([key, games]) => {
+      games.forEach((g, i) => {
+        if (g) resultsArr.push({ pairKey: key, gameIdx: i, ...g });
+      });
+    });
+    await fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'saveAll',
+        data: {
+          results:      resultsArr,
+          grounds:      grounds,
+          applications: applications
+        }
+      })
+    });
+    showSyncStatus('saved');
+  } catch(e) {
+    showSyncStatus('error');
+  } finally {
+    isSaving = false;
+  }
+}
+
+// スプレッドシートから読み込み
+async function loadFromSheet() {
+  if (!GAS_URL || GAS_URL === 'YOUR_GAS_URL_HERE') {
+    // フォールバック: LocalStorage
+    results      = JSON.parse(localStorage.getItem('softball_results')      || '{}');
+    grounds      = JSON.parse(localStorage.getItem('softball_grounds')      || '[]');
+    applications = JSON.parse(localStorage.getItem('softball_applications') || '[]');
+    return;
+  }
+  showSyncStatus('loading');
+  try {
+    const res  = await fetch(GAS_URL + '?action=getAll');
+    const data = await res.json();
+
+    // resultsをフラット配列からネスト構造に復元
+    results = {};
+    (data.results || []).forEach(row => {
+      if (!results[row.pairKey]) results[row.pairKey] = [null, null];
+      const idx = parseInt(row.gameIdx) || 0;
+      results[row.pairKey][idx] = {
+        home: row.home, away: row.away,
+        homeScore: parseInt(row.homeScore),
+        awayScore: parseInt(row.awayScore),
+        date: row.date || ''
+      };
+    });
+    grounds      = (data.grounds      || []).map(g => ({ ...g, id: Number(g.id), recruiting: g.recruiting === true || g.recruiting === 'TRUE' }));
+    applications = (data.applications || []).map(a => ({ ...a, id: Number(a.id), groundId: Number(a.groundId) }));
+    showSyncStatus('loaded');
+  } catch(e) {
+    showSyncStatus('error');
+    // フォールバック
+    results      = JSON.parse(localStorage.getItem('softball_results')      || '{}');
+    grounds      = JSON.parse(localStorage.getItem('softball_grounds')      || '[]');
+    applications = JSON.parse(localStorage.getItem('softball_applications') || '[]');
+  }
+}
+
+function showSyncStatus(state) {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  const map = {
+    loading: { text: '⟳ 読み込み中...', color: 'var(--gray)' },
+    saving:  { text: '⟳ 保存中...',     color: 'var(--yellow)' },
+    saved:   { text: '✓ 保存済み',       color: 'var(--green)' },
+    loaded:  { text: '✓ 最新データ',     color: 'var(--green)' },
+    error:   { text: '⚠ 通信エラー',     color: 'var(--red)' },
+  };
+  const s = map[state] || {};
+  el.textContent = s.text;
+  el.style.color = s.color;
+}
+
+// Pair key (always sorted)
+function pairKey(a, b) {
+  return [a, b].sort().join('|||');
+}
+
+// result[pairKey] = [ {home, away, homeScore, awayScore, date}, ... ] up to 2 games
+function getGames(teamA, teamB) {
+  return results[pairKey(teamA, teamB)] || [null, null];
+}
+
+let currentTeamA, currentTeamB, currentGames;
+// selectedWinner[i] = 'A' | 'B' | 'draw' | null
+let selectedWinner = [null, null];
+
+function selectWinner(gameIdx, choice) {
+  selectedWinner[gameIdx] = choice;
+  const btnA    = document.getElementById('winner-' + gameIdx + '-A');
+  const btnB    = document.getElementById('winner-' + gameIdx + '-B');
+  const btnDraw = document.getElementById('winner-' + gameIdx + '-draw');
+  if (!btnA || !btnB || !btnDraw) return;
+
+  // Reset all
+  btnA.className    = 'winner-btn';
+  btnB.className    = 'winner-btn';
+  btnDraw.className = 'winner-btn';
+
+  // Apply correct styles
+  if (choice === 'A') {
+    btnA.className = 'winner-btn selected-win';
+    btnB.className = 'winner-btn selected-lose';
+  } else if (choice === 'B') {
+    btnB.className = 'winner-btn selected-win';
+    btnA.className = 'winner-btn selected-lose';
+  } else if (choice === 'draw') {
+    btnDraw.className = 'winner-btn selected-draw';
+  }
+
+  // Update outcome label text
+  const lblA = document.getElementById('outcome-' + gameIdx + '-A');
+  const lblB = document.getElementById('outcome-' + gameIdx + '-B');
+  if (lblA) lblA.textContent = choice === 'A' ? '🏆 勝ち' : choice === 'B' ? '💔 負け' : choice === 'draw' ? '🤝 引分' : '';
+  if (lblB) lblB.textContent = choice === 'B' ? '🏆 勝ち' : choice === 'A' ? '💔 負け' : choice === 'draw' ? '🤝 引分' : '';
+}
+
+function openResultModal(teamA, teamB) {
+  currentTeamA = teamA;
+  currentTeamB = teamB;
+  currentGames = getGames(teamA, teamB);
+  selectedWinner = [null, null];
+
+  document.getElementById('modal-pair-label').textContent = `${teamA}  vs  ${teamB}`;
+
+  const container = document.getElementById('games-container');
+  container.innerHTML = '';
+
+  const hasAny = currentGames[0] || currentGames[1];
+  document.getElementById('btn-clear').style.display = hasAny ? 'block' : 'none';
+
+  for (let i = 0; i < 2; i++) {
+    const g = currentGames[i];
+    // Recover stored winner
+    let storedWinner = null;
+    let hs = '', as = '', dt = '';
+    if (g) {
+      hs = g.home === teamA ? g.homeScore : g.awayScore;
+      as = g.home === teamA ? g.awayScore : g.homeScore;
+      dt = g.date || '';
+      if (hs > as) storedWinner = 'A';
+      else if (as > hs) storedWinner = 'B';
+      else storedWinner = 'draw';
+    }
+    selectedWinner[i] = storedWinner;
+
+    const winSelA = storedWinner === 'A' ? 'selected-win'  : storedWinner === 'B' ? 'selected-lose' : storedWinner === 'draw' ? 'selected-draw' : '';
+    const winSelB = storedWinner === 'B' ? 'selected-win'  : storedWinner === 'A' ? 'selected-lose' : storedWinner === 'draw' ? 'selected-draw' : '';
+    const winSelD = storedWinner === 'draw' ? 'selected-draw' : '';
+
+    container.innerHTML += `
+      <div style="background:var(--navy2);border-radius:10px;padding:16px 16px 14px;margin-bottom:14px;">
+        <div style="font-size:12px;font-weight:700;color:var(--light);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
+          <span>第${i+1}試合</span>
+          ${g ? `<button onclick="clearGame(${i})" style="background:rgba(230,57,70,0.12);color:var(--red);border:1px solid rgba(230,57,70,0.3);border-radius:6px;padding:3px 10px;font-size:11px;font-family:'Zen Kaku Gothic New',sans-serif;cursor:pointer;">クリア</button>` : ''}
+        </div>
+
+        <div style="font-size:11px;color:var(--gray);margin-bottom:7px;">結果を選択</div>
+        <div class="winner-selector">
+          <button class="winner-btn ${winSelA}" id="winner-${i}-A" onclick="selectWinner(${i},'A')">
+            <span class="team-label">${shortName(teamA)}</span>
+            <span class="outcome-label" id="outcome-${i}-A">${storedWinner === 'A' ? '🏆 勝ち' : storedWinner === 'B' ? '💔 負け' : storedWinner === 'draw' ? '🤝 引分' : '　'}</span>
+          </button>
+          <button class="winner-btn ${winSelD}" id="winner-${i}-draw" onclick="selectWinner(${i},'draw')">
+            <span class="team-label" style="font-size:12px;">引　分</span>
+            <span class="outcome-label">🤝</span>
+          </button>
+          <button class="winner-btn ${winSelB}" id="winner-${i}-B" onclick="selectWinner(${i},'B')">
+            <span class="team-label">${shortName(teamB)}</span>
+            <span class="outcome-label" id="outcome-${i}-B">${storedWinner === 'B' ? '🏆 勝ち' : storedWinner === 'A' ? '💔 負け' : storedWinner === 'draw' ? '🤝 引分' : '　'}</span>
+          </button>
+        </div>
+
+        <div style="font-size:11px;color:var(--gray);margin-bottom:7px;">スコア（任意）</div>
+        <div class="score-row">
+          <span class="score-team-name">${shortName(teamA)}</span>
+          <input type="number" class="score-input-num" id="score-a-${i}" value="${hs}" placeholder="0" min="0" max="99">
+          <span class="score-dash">－</span>
+          <input type="number" class="score-input-num" id="score-b-${i}" value="${as}" placeholder="0" min="0" max="99">
+          <span class="score-team-name" style="text-align:right">${shortName(teamB)}</span>
+        </div>
+
+        <div class="field-row" style="margin-bottom:0">
+          <label>試合日</label>
+          <input type="date" id="game-date-${i}" value="${dt}"
+            style="background:var(--navy);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'Zen Kaku Gothic New',sans-serif;font-size:14px;padding:9px 12px;outline:none;flex:1;">
+        </div>
+      </div>
+    `;
+  }
+  openModal('result-modal');
+}
+
+function shortName(name) {
+  // Shorten long team names for display inside buttons
+  if (name.length <= 5) return name;
+  return name.replace('/','/<br>');
+}
+
+function saveResults() {
+  const key = pairKey(currentTeamA, currentTeamB);
+  const arr = [];
+  for (let i = 0; i < 2; i++) {
+    const winner = selectedWinner[i];
+    const sa = parseInt(document.getElementById(`score-a-${i}`).value);
+    const sb = parseInt(document.getElementById(`score-b-${i}`).value);
+    const date = document.getElementById(`game-date-${i}`).value;
+
+    if (!winner) { arr.push(null); continue; }
+
+    // Build homeScore/awayScore from winner + optional scores
+    let homeScore, awayScore;
+    if (!isNaN(sa) && !isNaN(sb)) {
+      homeScore = sa; awayScore = sb;
+      // Validate consistency with winner choice
+      if (winner === 'A' && homeScore <= awayScore) homeScore = awayScore + 1;
+      if (winner === 'B' && awayScore <= homeScore) awayScore = homeScore + 1;
+      if (winner === 'draw') { /* keep scores as-is or make equal */ if (homeScore !== awayScore) awayScore = homeScore; }
+    } else {
+      // No scores entered: use symbolic 1-0 / 0-1 / 0-0
+      homeScore = winner === 'A' ? 1 : winner === 'draw' ? 0 : 0;
+      awayScore = winner === 'B' ? 1 : winner === 'draw' ? 0 : 0;
+    }
+    arr.push({ home: currentTeamA, away: currentTeamB, homeScore, awayScore, date });
+  }
+  results[key] = arr;
+  save();
+  closeModal('result-modal');
+  render();
+  showToast('結果を保存しました ✓');
+}
+
+function clearResults() {
+  const key = pairKey(currentTeamA, currentTeamB);
+  delete results[key];
+  save();
+  closeModal('result-modal');
+  render();
+  showToast('結果をクリアしました');
+}
+
+function clearGame(gameIdx) {
+  const key = pairKey(currentTeamA, currentTeamB);
+  const arr = results[key] ? [...results[key]] : [null, null];
+  arr[gameIdx] = null;
+  // If both null, remove the key entirely
+  if (!arr[0] && !arr[1]) {
+    delete results[key];
+  } else {
+    results[key] = arr;
+  }
+  save();
+  // Re-open modal to refresh UI
+  openResultModal(currentTeamA, currentTeamB);
+  showToast('第' + (gameIdx + 1) + '試合をクリアしました');
+}
+
+// ===== STANDINGS =====
+function calcStandings() {
+  const stats = {};
+  TEAMS.forEach(t => {
+    stats[t] = { games: 0, wins: 0, losses: 0, draws: 0, points: 0, concede: 0 };
+  });
+
+  TEAMS.forEach((a, i) => {
+    TEAMS.forEach((b, j) => {
+      if (j <= i) return;
+      const games = getGames(a, b);
+      games.forEach(g => {
+        if (!g) return;
+        stats[a].games++;
+        stats[b].games++;
+        // Use g.home to correctly assign scores regardless of loop order
+        const scoreA = g.home === a ? g.homeScore : g.awayScore;
+        const scoreB = g.home === b ? g.homeScore : g.awayScore;
+        stats[a].points  += scoreA;
+        stats[b].points  += scoreB;
+        stats[a].concede += scoreB;
+        stats[b].concede += scoreA;
+        if (scoreA > scoreB) {
+          stats[a].wins++; stats[b].losses++;
+        } else if (scoreA < scoreB) {
+          stats[b].wins++; stats[a].losses++;
+        } else {
+          stats[a].draws++; stats[b].draws++;
+        }
+      });
+    });
+  });
+
+  return TEAMS.map(t => ({ team: t, ...stats[t] })).sort((a, b) => {
+    const wa = a.games > 0 ? a.wins / a.games : 0;
+    const wb = b.games > 0 ? b.wins / b.games : 0;
+    if (wa !== wb) return wb - wa;
+    if (b.wins !== a.wins) return b.wins - a.wins;
+    return (b.points - b.concede) - (a.points - a.concede);
+  });
+}
+
+function renderStandings() {
+  const rows = calcStandings();
+  const tbody = document.getElementById('standings-body');
+  tbody.innerHTML = '';
+  rows.forEach((r, i) => {
+    const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    const totalPossible = (TEAMS.length - 1) * 2;
+    const pending = totalPossible - r.games;
+    const pct = r.games > 0 ? (r.wins / r.games).toFixed(3).replace(/^0/, '') : '---';
+    tbody.innerHTML += `
+      <tr>
+        <td><span class="rank-num ${rankClass}">${i + 1}</span></td>
+        <td>${r.team}</td>
+        <td>${r.games}</td>
+        <td style="color:var(--green);font-weight:700">${r.wins}</td>
+        <td style="color:var(--red)">${r.losses}</td>
+        <td style="color:var(--yellow)">${r.draws}</td>
+        <td style="color:var(--gray)">${pending}</td>
+        <td class="win-pct">${pct}</td>
+        <td>${r.points}</td>
+        <td>${r.concede}</td>
+      </tr>
+    `;
+  });
+
+  // Progress
+  let played = 0, total = 0;
+  TEAMS.forEach((a, i) => {
+    TEAMS.forEach((b, j) => {
+      if (j <= i) return;
+      total += 2;
+      const gs = getGames(a, b);
+      played += (gs[0] ? 1 : 0) + (gs[1] ? 1 : 0);
+    });
+  });
+  document.getElementById('progress-info').textContent = `実施済み ${played} / 全 ${total} 試合`;
+}
+
+// ===== MATRIX =====
+function renderMatrix() {
+  const table = document.getElementById('matrix-table');
+  let html = '<thead><tr><th>←自チーム / 相手→</th>';
+  TEAMS.forEach(t => { html += `<th>${t}</th>`; });
+  html += '</tr></thead><tbody>';
+
+  TEAMS.forEach(teamA => {
+    html += `<tr><td class="row-header">${teamA}</td>`;
+    TEAMS.forEach(teamB => {
+      if (teamA === teamB) {
+        html += `<td class="matrix-cell self"></td>`;
+        return;
+      }
+      const gs = getGames(teamA, teamB);
+      html += `<td class="matrix-cell">`;
+      const hasResult = gs[0] || gs[1];
+      if (hasResult) {
+        html += `<div class="game-results">`;
+        for (let i = 0; i < 2; i++) {
+          const g = gs[i];
+          if (g) {
+            // Determine result from teamA's perspective
+            let hs = g.home === teamA ? g.homeScore : g.awayScore;
+            let as = g.home === teamA ? g.awayScore : g.homeScore;
+            let cls = hs > as ? 'score-win' : hs < as ? 'score-lose' : 'score-draw';
+            html += `<div class="result-row">
+              <span class="game-num">${i+1}</span>
+              <span class="score-display ${cls}">${hs}−${as}</span>
+            </div>`;
+          } else {
+            html += `<div class="result-row"><span class="game-num">${i+1}</span><span style="font-size:11px;color:var(--gray)">未</span></div>`;
+          }
+        }
+        html += `</div>`;
+      }
+      const btnLabel = hasResult ? '編集' : '入力';
+      html += `<div style="padding:${hasResult?'2px':'8px'} 4px;text-align:center;">
+        <button class="enter-btn" onclick="openResultModal('${teamA}','${teamB}')">${btnLabel}</button>
+      </div>`;
+      html += `</td>`;
+    });
+    html += `</tr>`;
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+
+// ===== GROUNDS =====
+function openGroundModal() {
+  document.getElementById('g-team').value = '';
+  document.getElementById('g-name').value = '';
+  document.getElementById('g-date-picker').value = '';
+  document.getElementById('g-time-start').value = '';
+  document.getElementById('g-time-end').value = '';
+  document.getElementById('g-date-preview').textContent = '';
+  document.getElementById('g-location').value = '';
+  document.getElementById('g-note').value = '';
+  openModal('ground-modal');
+}
+
+function saveGround() {
+  const team = document.getElementById('g-team').value;
+  const name = document.getElementById('g-name').value.trim();
+  const date = buildGDate();
+  const location = document.getElementById('g-location').value.trim();
+  const note = document.getElementById('g-note').value.trim();
+  if (!team || !name) { alert('チーム名とグランド名は必須です'); return; }
+  grounds.push({ id: Date.now(), team, name, date, location, note, recruiting: false });
+  save();
+  closeModal('ground-modal');
+  renderGrounds();
+  showToast('グランドを登録しました ✓');
+}
+
+function toggleRecruit(id) {
+  const g = grounds.find(x => x.id === id);
+  if (g) { g.recruiting = !g.recruiting; save(); renderGrounds(); }
+}
+
+function deleteGround(id) {
+  if (!confirm('この登録を削除しますか？')) return;
+  grounds = grounds.filter(x => x.id !== id);
+  save();
+  renderGrounds();
+  showToast('削除しました');
+}
+
+function renderGrounds() {
+  const grid = document.getElementById('ground-grid');
+  if (grounds.length === 0) {
+    grid.innerHTML = '<div class="no-ground">まだグランドが登録されていません。<br>上のボタンから登録してください。</div>';
+    return;
+  }
+  grid.innerHTML = '';
+  [...grounds].reverse().forEach(g => {
+    const apps = applications.filter(a => a.groundId === g.id);
+    const pending = apps.filter(a => a.status === 'pending');
+    const appBadge = pending.length > 0
+      ? `<span style="background:var(--red);color:#fff;font-size:11px;font-weight:700;border-radius:10px;padding:2px 8px;margin-left:6px;">応募 ${pending.length}件</span>`
+      : '';
+    grid.innerHTML += `
+      <div class="ground-card">
+        <div class="ground-card-top">
+          <div class="ground-name">${g.name}${appBadge}</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            ${g.recruiting ? '<span class="recruit-badge">⚡ 募集中</span>' : ''}
+            <span class="ground-team-badge">${g.team}</span>
+          </div>
+        </div>
+        ${g.date ? `<div class="ground-info">📅 <span>${g.date}</span></div>` : ''}
+        ${g.location ? `<div class="ground-info">📍 <span>${g.location}</span></div>` : ''}
+        ${g.note ? `<div class="ground-note">${g.note}</div>` : ''}
+        <div class="ground-actions" style="flex-wrap:wrap;">
+          <button class="btn-recruit ${g.recruiting ? 'active' : ''}" onclick="toggleRecruit(${g.id})">
+            ${g.recruiting ? '✅ 募集中（解除）' : '⚡ 対戦相手を募集する'}
+          </button>
+          ${g.recruiting ? `<button class="btn-recruit" style="background:rgba(29,185,84,0.15);color:var(--green);border-color:rgba(29,185,84,0.4);" onclick="openApplyModal(${g.id})">📩 応募する</button>` : ''}
+          ${apps.length > 0 ? `<button class="btn-recruit" style="background:rgba(245,197,24,0.12);color:var(--yellow);border-color:rgba(245,197,24,0.35);width:100%;margin-top:4px;" onclick="openAppListModal(${g.id})">📋 応募一覧を見る（${apps.length}件）</button>` : ''}
+          <button class="btn-del-ground" onclick="deleteGround(${g.id})">削除</button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+const WEEKDAYS = ['日','月','火','水','木','金','土'];
+
+function buildGDate() {
+  const dp = document.getElementById('g-date-picker').value;
+  const ts = document.getElementById('g-time-start').value;
+  const te = document.getElementById('g-time-end').value;
+  if (!dp) return '';
+  const d = new Date(dp + 'T00:00:00');
+  const mm = d.getMonth() + 1;
+  const dd = d.getDate();
+  const wd = WEEKDAYS[d.getDay()];
+  let str = mm + '月' + dd + '日(' + wd + ')';
+  if (ts) str += ' ' + ts;
+  if (ts && te) str += '〜' + te;
+  else if (te) str += '〜' + te;
+  return str;
+}
+
+function updateGDateDisplay() {
+  const preview = document.getElementById('g-date-preview');
+  const val = buildGDate();
+  preview.textContent = val ? '📅 ' + val : '';
+}
+
+let currentApplyGroundId = null;
+let currentAppListGroundId = null;
+
+function openApplyModal(groundId) {
+  currentApplyGroundId = groundId;
+  const g = grounds.find(x => x.id === groundId);
+  document.getElementById('apply-modal-subtitle').textContent = g.name + '（' + g.team + '）への申し込み';
+  document.getElementById('apply-team').value = '';
+  document.getElementById('apply-message').value = '';
+  // Populate team select (exclude owning team)
+  const sel = document.getElementById('apply-team');
+  sel.innerHTML = '<option value="">選択してください</option>';
+  TEAMS.filter(t => t !== g.team).forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t; opt.textContent = t;
+    sel.appendChild(opt);
+  });
+  openModal('apply-modal');
+}
+
+function submitApply() {
+  const team = document.getElementById('apply-team').value;
+  const message = document.getElementById('apply-message').value.trim();
+  if (!team) { alert('チームを選択してください'); return; }
+  const g = grounds.find(x => x.id === currentApplyGroundId);
+  // Check duplicate pending
+  const dup = applications.find(a => a.groundId === currentApplyGroundId && a.fromTeam === team && a.status === 'pending');
+  if (dup) { alert('このチームはすでに申し込み済みです'); return; }
+  applications.push({
+    id: Date.now(),
+    groundId: currentApplyGroundId,
+    fromTeam: team,
+    message,
+    date: new Date().toLocaleDateString('ja-JP'),
+    status: 'pending'
+  });
+  save();
+  closeModal('apply-modal');
+  renderGrounds();
+  showToast('申し込みを送りました ✓');
+}
+
+function openAppListModal(groundId) {
+  currentAppListGroundId = groundId;
+  const g = grounds.find(x => x.id === groundId);
+  document.getElementById('applist-subtitle').textContent = g.name + ' の応募一覧';
+  renderAppList();
+  openModal('applist-modal');
+}
+
+function renderAppList() {
+  const apps = applications.filter(a => a.groundId === currentAppListGroundId);
+  const container = document.getElementById('applist-container');
+  if (apps.length === 0) {
+    container.innerHTML = '<p style="color:var(--gray);font-size:13px;text-align:center;padding:24px 0;">まだ応募はありません</p>';
+    return;
+  }
+  const statusLabel = { pending: '⏳ 検討中', accepted: '✅ 承諾', declined: '❌ 辞退' };
+  const statusColor = { pending: 'var(--yellow)', accepted: 'var(--green)', declined: 'var(--red)' };
+  container.innerHTML = apps.map(a => `
+    <div style="background:var(--navy2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-weight:700;font-size:14px;color:var(--white);">${a.fromTeam}</span>
+        <span style="font-size:12px;font-weight:700;color:${statusColor[a.status]};">${statusLabel[a.status]}</span>
+      </div>
+      ${a.message ? `<div style="font-size:12px;color:var(--gray);margin-bottom:10px;line-height:1.5;">${a.message}</div>` : ''}
+      <div style="font-size:11px;color:var(--gray);margin-bottom:10px;">申込日：${a.date}</div>
+      ${a.status === 'pending' ? `
+      <div style="display:flex;gap:8px;">
+        <button onclick="updateAppStatus(${a.id},'accepted')" style="flex:1;background:rgba(29,185,84,0.15);color:var(--green);border:1px solid rgba(29,185,84,0.4);border-radius:7px;padding:8px;font-family:'Zen Kaku Gothic New',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">✅ 承諾する</button>
+        <button onclick="updateAppStatus(${a.id},'declined')" style="flex:1;background:rgba(230,57,70,0.1);color:var(--red);border:1px solid rgba(230,57,70,0.3);border-radius:7px;padding:8px;font-family:'Zen Kaku Gothic New',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">❌ 辞退する</button>
+      </div>` : ''}
+    </div>
+  `).join('');
+}
+
+function updateAppStatus(appId, status) {
+  const a = applications.find(x => x.id === appId);
+  if (a) { a.status = status; save(); renderAppList(); renderGrounds(); }
+  const msg = status === 'accepted' ? '承諾しました ✓' : '辞退しました';
+  showToast(msg);
+}
+
+function populateTeamSelect() {
+  const sel = document.getElementById('g-team');
+  TEAMS.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t;
+    opt.textContent = t;
+    sel.appendChild(opt);
+  });
+}
+
+// ===== UTILS =====
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'matrix') renderMatrix();
+  if (name === 'schedule') renderSchedule();
+}
+
+function renderSchedule() {
+  const list = document.getElementById('schedule-list');
+  // Collect confirmed matches from applications (accepted) + played results
+  // Accepted applications
+  const confirmed = applications.filter(a => a.status === 'accepted').map(a => {
+    const g = grounds.find(x => x.id === a.groundId);
+    if (!g) return null;
+    return {
+      type: 'scheduled',
+      date: g.date || '日程未定',
+      ground: g.name,
+      location: g.location || '',
+      teamA: g.team,
+      teamB: a.fromTeam,
+      message: a.message || '',
+      appId: a.id,
+      groundId: g.id
+    };
+  }).filter(Boolean);
+
+  // Played results from matrix
+  const played = [];
+  TEAMS.forEach((a, i) => {
+    TEAMS.forEach((b, j) => {
+      if (j <= i) return;
+      const games = getGames(a, b);
+      games.forEach((g, gi) => {
+        if (!g) return;
+        const scoreA = g.home === a ? g.homeScore : g.awayScore;
+        const scoreB = g.home === b ? g.homeScore : g.awayScore;
+        const result = scoreA > scoreB ? a + ' 勝利' : scoreB > scoreA ? b + ' 勝利' : '引分';
+        played.push({
+          type: 'played',
+          date: g.date || '日程未定',
+          teamA: a, teamB: b,
+          scoreA, scoreB, result,
+          gameNum: gi + 1
+        });
+      });
+    });
+  });
+
+  const all = [
+    ...confirmed.map(c => ({ ...c, sortDate: c.date })),
+    ...played.map(p => ({ ...p, sortDate: p.date }))
+  ];
+
+  if (all.length === 0) {
+    list.innerHTML = `<div style="text-align:center;padding:48px 20px;color:var(--gray);font-size:14px;">
+      確定済みの対戦はまだありません。<br>
+      <span style="font-size:12px;">グランド募集で応募を承諾するか、対戦表に結果を入力すると表示されます。</span>
+    </div>`;
+    return;
+  }
+
+  // Group by date
+  const byDate = {};
+  all.forEach(item => {
+    const key = item.date || '日程未定';
+    if (!byDate[key]) byDate[key] = [];
+    byDate[key].push(item);
+  });
+
+  let html = '';
+  Object.keys(byDate).sort().forEach(date => {
+    html += `<div style="margin-bottom:28px;">
+      <div style="font-size:12px;font-weight:700;color:var(--green);letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+        <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);"></span>
+        ${date}
+      </div>`;
+    byDate[date].forEach(item => {
+      if (item.type === 'scheduled') {
+        html += `
+        <div style="background:var(--card);border:1px solid var(--border);border-left:3px solid var(--yellow);border-radius:10px;padding:16px 18px;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <span style="font-size:11px;font-weight:700;background:rgba(245,197,24,0.15);color:var(--yellow);border:1px solid rgba(245,197,24,0.3);border-radius:10px;padding:2px 10px;">📅 対戦予定</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:12px;">
+            <span style="font-size:16px;font-weight:900;color:var(--white);">${item.teamA}</span>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--gray);">VS</span>
+            <span style="font-size:16px;font-weight:900;color:var(--white);">${item.teamB}</span>
+          </div>
+          ${item.ground ? `<div style="font-size:12px;color:var(--gray);margin-bottom:3px;">🏟 ${item.ground}${item.location ? '　📍 ' + item.location : ''}</div>` : ''}
+          ${item.message ? `<div style="font-size:12px;color:var(--gray);margin-top:6px;line-height:1.5;">💬 ${item.message}</div>` : ''}
+        </div>`;
+      } else {
+        const winnerColor = item.scoreA > item.scoreB ? 'var(--green)' : item.scoreB > item.scoreA ? 'var(--green)' : 'var(--yellow)';
+        html += `
+        <div style="background:var(--card);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:10px;padding:16px 18px;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <span style="font-size:11px;font-weight:700;background:rgba(29,185,84,0.12);color:var(--green);border:1px solid rgba(29,185,84,0.3);border-radius:10px;padding:2px 10px;">✅ 試合結果 第${item.gameNum}試合</span>
+            <span style="font-size:12px;font-weight:700;color:${winnerColor};">${item.result}</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
+            <span style="font-size:15px;font-weight:900;color:${item.scoreA >= item.scoreB ? 'var(--white)' : 'var(--gray)'};">${item.teamA}</span>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;color:var(--white);">${item.scoreA} <span style="color:var(--gray);font-size:18px;">−</span> ${item.scoreB}</span>
+            <span style="font-size:15px;font-weight:900;color:${item.scoreB >= item.scoreA ? 'var(--white)' : 'var(--gray)'};">${item.teamB}</span>
+          </div>
+        </div>`;
+      }
+    });
+    html += '</div>';
+  });
+
+  list.innerHTML = html;
+}
+
+function render() {
+  renderStandings();
+  renderMatrix();
+  renderGrounds();
+  renderSchedule();
+}
+
+// Init
+populateTeamSelect();
+loadFromSheet().then(() => render());
+</script>
+</body>
+</html>
