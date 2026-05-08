@@ -668,7 +668,7 @@
       <h2>西エリアリーグ大会</h2>
     </div>
     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;margin-left:auto;">
-      <div class="season-badge">2025年度</div>
+      <div class="season-badge">2026年度</div>
       <span id="sync-status" style="font-size:11px;color:var(--gray);">--</span>
     </div>
   </div>
@@ -952,6 +952,7 @@ async function save() {
     });
     await fetch(GAS_URL, {
       method: 'POST',
+      redirect: 'follow',
       body: JSON.stringify({
         action: 'saveAll',
         data: {
@@ -963,6 +964,7 @@ async function save() {
     });
     showSyncStatus('saved');
   } catch(e) {
+    console.error('保存エラー:', e);
     showSyncStatus('error');
   } finally {
     isSaving = false;
@@ -980,7 +982,7 @@ async function loadFromSheet() {
   }
   showSyncStatus('loading');
   try {
-    const res  = await fetch(GAS_URL + '?action=getAll');
+    const res  = await fetch(GAS_URL + '?action=getAll', { redirect: 'follow' });
     const data = await res.json();
 
     // resultsをフラット配列からネスト構造に復元
@@ -999,8 +1001,9 @@ async function loadFromSheet() {
     applications = (data.applications || []).map(a => ({ ...a, id: Number(a.id), groundId: Number(a.groundId) }));
     showSyncStatus('loaded');
   } catch(e) {
+    console.error('GAS接続エラー:', e);
     showSyncStatus('error');
-    // フォールバック
+    // フォールバック: LocalStorageから読み込み
     results      = JSON.parse(localStorage.getItem('softball_results')      || '{}');
     grounds      = JSON.parse(localStorage.getItem('softball_grounds')      || '[]');
     applications = JSON.parse(localStorage.getItem('softball_applications') || '[]');
