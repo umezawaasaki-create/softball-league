@@ -950,18 +950,17 @@ async function save() {
         if (g) resultsArr.push({ pairKey: key, gameIdx: i, ...g });
       });
     });
-    await fetch(GAS_URL, {
-      method: 'POST',
-      redirect: 'follow',
-      body: JSON.stringify({
-        action: 'saveAll',
-        data: {
-          results:      resultsArr,
-          grounds:      grounds,
-          applications: applications
-        }
-      })
-    });
+    const payload = {
+      action: 'saveAll',
+      data: {
+        results:      resultsArr,
+        grounds:      grounds,
+        applications: applications
+      }
+    };
+    // GASはPOSTのCORSに制限があるためGETパラメータで送信
+    const encoded = encodeURIComponent(JSON.stringify(payload));
+    await fetch(GAS_URL + '?payload=' + encoded, { redirect: 'follow' });
     showSyncStatus('saved');
   } catch(e) {
     console.error('保存エラー:', e);
