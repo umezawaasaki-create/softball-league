@@ -763,7 +763,14 @@
   <div class="tab-panel" id="tab-grounds">
     <div class="ground-header">
       <div class="section-title" style="margin-bottom:0">グランド情報・対戦募集</div>
-      <button class="btn-add-ground" onclick="openGroundModal()">＋ グランドを登録する</button>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <select id="ground-sort" onchange="renderGrounds()" style="background:var(--card);border:1px solid var(--border);border-radius:7px;color:var(--light);font-family:'Zen Kaku Gothic New',sans-serif;font-size:13px;padding:7px 12px;outline:none;cursor:pointer;">
+          <option value="date">📅 日付順</option>
+          <option value="name">🏟 グランド順</option>
+          <option value="created">🕐 募集開始順</option>
+        </select>
+        <button class="btn-add-ground" onclick="openGroundModal()">＋ グランドを登録する</button>
+      </div>
     </div>
     <div class="ground-grid" id="ground-grid">
       <div class="no-ground">まだグランドが登録されていません。<br>上のボタンから登録してください。</div>
@@ -1504,7 +1511,21 @@ function renderGrounds() {
     return;
   }
   grid.innerHTML = '';
-  [...grounds].filter(g => !g.confirmed).reverse().forEach(g => {
+  const sortKey = (document.getElementById('ground-sort') || {}).value || 'date';
+  const getMonthDay = d => {
+    if (!d) return 9999;
+    const m = d.match(/(\d+)月(\d+)日/);
+    return m ? parseInt(m[1]) * 100 + parseInt(m[2]) : 9999;
+  };
+  const sortedGrounds = [...grounds]
+    .filter(g => !g.confirmed)
+    .sort((a, b) => {
+      if (sortKey === 'date')    return getMonthDay(a.date) - getMonthDay(b.date);
+      if (sortKey === 'name')    return (a.name || '').localeCompare(b.name || '', 'ja');
+      if (sortKey === 'created') return a.id - b.id; // idは登録時刻ベース
+      return 0;
+    });
+  sortedGrounds.forEach(g => {
     const apps = applications.filter(a => a.groundId === g.id);
     const hasApp = apps.some(a => a.status === 'pending');
 
