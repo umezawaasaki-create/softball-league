@@ -1009,9 +1009,13 @@ async function save() {
         applications: applications
       }
     };
-    // GASはPOSTのCORSに制限があるためGETパラメータで送信
-    const encoded = encodeURIComponent(JSON.stringify(payload));
-    await fetch(GAS_URL + '?payload=' + encoded, { redirect: 'follow' });
+    // no-cors で POST送信（GASはリダイレクト経由でPOSTを受け取る）
+    await fetch(GAS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
+    });
     showSyncStatus('saved');
   } catch(e) {
     console.error('保存エラー:', e);
