@@ -907,7 +907,11 @@
       <label class="field-label">連絡先・備考</label>
       <textarea id="g-note" placeholder="例：対戦相手を募集中。連絡は xxxxxx@xxx.com まで。収容可能人数：20名程度"></textarea>
     </div>
+    <div id="ground-modal-extra" style="display:none;margin-bottom:4px;">
+      <button id="btn-toggle-recruit" onclick="toggleRecruitInModal()" style="width:100%;background:rgba(245,197,24,0.12);color:var(--yellow);border:1px solid rgba(245,197,24,0.35);border-radius:8px;padding:10px;font-family:'Zen Kaku Gothic New',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px;"></button>
+    </div>
     <div class="modal-actions">
+      <button id="btn-delete-ground" class="btn-delete" onclick="deleteGroundFromModal()" style="display:none;">応募を削除</button>
       <button class="btn-cancel" onclick="closeModal('ground-modal')">キャンセル</button>
       <button class="btn-save" onclick="saveGround()">登録する</button>
     </div>
@@ -1364,9 +1368,22 @@ function openGroundModal(id) {
   document.getElementById('g-time-end').value     = '';
   document.getElementById('g-date-preview').textContent = g && g.date ? '📅 ' + g.date : '';
 
-  // Update modal title
+  // Update modal title and buttons
   document.querySelector('#ground-modal h3').textContent = g ? 'グランドを編集する' : 'グランドを登録する';
   document.querySelector('#ground-modal .btn-save').textContent = g ? '更新する' : '登録する';
+
+  const extra = document.getElementById('ground-modal-extra');
+  const delBtn = document.getElementById('btn-delete-ground');
+  const recruitBtn = document.getElementById('btn-toggle-recruit');
+  if (g) {
+    extra.style.display = 'block';
+    delBtn.style.display = 'block';
+    recruitBtn.textContent = g.recruiting ? '✅ 募集中（解除する）' : '⚡ 対戦相手を募集する';
+    recruitBtn.style.background = g.recruiting ? 'rgba(245,197,24,0.25)' : 'rgba(245,197,24,0.12)';
+  } else {
+    extra.style.display = 'none';
+    delBtn.style.display = 'none';
+  }
 
   openModal('ground-modal');
 }
@@ -1402,6 +1419,27 @@ function toggleRecruit(id) {
   if (g) { g.recruiting = !g.recruiting; save(); renderGrounds(); }
 }
 
+function toggleRecruitInModal() {
+  const g = grounds.find(x => x.id === editingGroundId);
+  if (!g) return;
+  g.recruiting = !g.recruiting;
+  save();
+  renderGrounds();
+  const btn = document.getElementById('btn-toggle-recruit');
+  btn.textContent = g.recruiting ? '✅ 募集中（解除する）' : '⚡ 対戦相手を募集する';
+  btn.style.background = g.recruiting ? 'rgba(245,197,24,0.25)' : 'rgba(245,197,24,0.12)';
+  showToast(g.recruiting ? '募集を開始しました' : '募集を解除しました');
+}
+
+function deleteGroundFromModal() {
+  if (!confirm('この登録を削除しますか？')) return;
+  grounds = grounds.filter(x => x.id !== editingGroundId);
+  save();
+  closeModal('ground-modal');
+  renderGrounds();
+  showToast('削除しました');
+}
+
 function deleteGround(id) {
   if (!confirm('この登録を削除しますか？')) return;
   grounds = grounds.filter(x => x.id !== id);
@@ -1421,10 +1459,10 @@ function renderGrounds() {
     const apps = applications.filter(a => a.groundId === g.id);
     const pending = apps.filter(a => a.status === 'pending');
     const appBadge = pending.length > 0
-      ? `<span style="background:var(--red);color:#fff;font-size:11px;font-weight:700;border-radius:10px;padding:2px 8px;margin-left:6px;">応募 ${pending.length}件</span>`
+      ? `<span onclick="event.stopPropagation();openAppListModal(${g.id});" style="background:var(--red);color:#fff;font-size:11px;font-weight:700;border-radius:10px;padding:2px 8px;margin-left:6px;cursor:pointer;">応募 ${pending.length}件</span>`
       : '';
     grid.innerHTML += `
-      <div class="ground-card" onclick="openGroundDetailModal(${g.id})" style="cursor:pointer;">
+      <div class="ground-card" onclick="openGroundModal(${g.id})" style="cursor:pointer;">
         <div class="ground-card-top">
           <div class="ground-name">${g.name}${appBadge}</div>
           <div style="display:flex;align-items:center;gap:6px;">
