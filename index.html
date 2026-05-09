@@ -819,6 +819,16 @@
 .score-dash { font-family: 'Barlow Condensed'; font-size: 20px; font-weight:700; color: var(--gray); }
 </style>
 
+<!-- ===== GROUND DETAIL MODAL ===== -->
+<div class="modal-overlay" id="ground-detail-modal">
+  <div class="modal" style="max-width:440px;">
+    <div id="ground-detail-content"></div>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn-cancel" onclick="closeModal('ground-detail-modal')">閉じる</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== APPLY MODAL ===== -->
 <div class="modal-overlay" id="apply-modal">
   <div class="modal" style="max-width:420px;">
@@ -1414,7 +1424,7 @@ function renderGrounds() {
       ? `<span style="background:var(--red);color:#fff;font-size:11px;font-weight:700;border-radius:10px;padding:2px 8px;margin-left:6px;">応募 ${pending.length}件</span>`
       : '';
     grid.innerHTML += `
-      <div class="ground-card">
+      <div class="ground-card" onclick="openGroundDetailModal(${g.id})" style="cursor:pointer;">
         <div class="ground-card-top">
           <div class="ground-name">${g.name}${appBadge}</div>
           <div style="display:flex;align-items:center;gap:6px;">
@@ -1425,15 +1435,10 @@ function renderGrounds() {
         ${g.date ? `<div class="ground-info">📅 <span>${g.date}</span></div>` : ''}
         ${g.location ? `<div class="ground-info">📍 <span>${g.location}</span></div>` : ''}
         ${g.note ? `<div class="ground-note">${g.note}</div>` : ''}
-        <div class="ground-actions" style="flex-wrap:wrap;">
-          <button class="btn-recruit ${g.recruiting ? 'active' : ''}" onclick="toggleRecruit(${g.id})">
-            ${g.recruiting ? '✅ 募集中（解除）' : '⚡ 対戦相手を募集する'}
-          </button>
-          ${g.recruiting ? `<button class="btn-recruit" style="background:rgba(29,185,84,0.15);color:var(--green);border-color:rgba(29,185,84,0.4);" onclick="openApplyModal(${g.id})">📩 応募する</button>` : ''}
-          ${apps.length > 0 ? `<button class="btn-recruit" style="background:rgba(245,197,24,0.12);color:var(--yellow);border-color:rgba(245,197,24,0.35);width:100%;margin-top:4px;" onclick="openAppListModal(${g.id})">📋 応募一覧を見る（${apps.length}件）</button>` : ''}
-          <button class="btn-recruit" style="background:rgba(99,179,237,0.12);color:#63b3ed;border-color:rgba(99,179,237,0.35);" onclick="openGroundModal(${g.id})">✏️ 編集</button>
-          <button class="btn-del-ground" onclick="deleteGround(${g.id})">削除</button>
-        </div>
+        ${g.recruiting ? `
+        <div class="ground-actions" style="margin-top:12px;">
+          <button class="btn-recruit" style="background:rgba(29,185,84,0.15);color:var(--green);border-color:rgba(29,185,84,0.4);width:100%;" onclick="event.stopPropagation();openApplyModal(${g.id})">📩 応募する</button>
+        </div>` : ''}
       </div>
     `;
   });
@@ -1465,6 +1470,44 @@ function updateGDateDisplay() {
 
 let currentApplyGroundId = null;
 let currentAppListGroundId = null;
+
+function openGroundDetailModal(id) {
+  const g = grounds.find(x => x.id === id);
+  if (!g) return;
+  const apps = applications.filter(a => a.groundId === id);
+  const container = document.getElementById('ground-detail-content');
+  container.innerHTML = `
+    <h3 style="margin-bottom:6px;">${g.name}</h3>
+    <div style="margin-bottom:16px;">
+      <span class="ground-team-badge">${g.team}</span>
+      ${g.recruiting ? '<span class="recruit-badge" style="margin-left:8px;">⚡ 募集中</span>' : ''}
+    </div>
+    ${g.date     ? `<div class="ground-info" style="margin-bottom:6px;">📅 <span>${g.date}</span></div>`     : ''}
+    ${g.location ? `<div class="ground-info" style="margin-bottom:6px;">📍 <span>${g.location}</span></div>` : ''}
+    ${g.note     ? `<div class="ground-note" style="margin-bottom:16px;">${g.note}</div>`                    : ''}
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px;">
+      <button class="btn-recruit ${g.recruiting ? 'active' : ''}"
+        onclick="toggleRecruit(${g.id});closeModal('ground-detail-modal');renderGrounds();"
+        style="width:100%;">
+        ${g.recruiting ? '✅ 募集中（解除する）' : '⚡ 対戦相手を募集する'}
+      </button>
+      ${apps.length > 0 ? `
+      <button class="btn-recruit" style="background:rgba(245,197,24,0.12);color:var(--yellow);border-color:rgba(245,197,24,0.35);width:100%;"
+        onclick="closeModal('ground-detail-modal');openAppListModal(${g.id});">
+        📋 応募一覧を見る（${apps.length}件）
+      </button>` : ''}
+      <button class="btn-recruit" style="background:rgba(99,179,237,0.12);color:#63b3ed;border-color:rgba(99,179,237,0.35);width:100%;"
+        onclick="closeModal('ground-detail-modal');openGroundModal(${g.id});">
+        ✏️ 編集する
+      </button>
+      <button class="btn-del-ground" style="width:100%;padding:10px;"
+        onclick="closeModal('ground-detail-modal');deleteGround(${g.id});">
+        🗑 削除する
+      </button>
+    </div>
+  `;
+  openModal('ground-detail-modal');
+}
 
 function openApplyModal(groundId) {
   currentApplyGroundId = groundId;
