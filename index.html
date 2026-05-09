@@ -647,6 +647,42 @@
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
 
+  /* Pencil edit button */
+  .pencil-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+    transition: transform 0.2s, background 0.2s;
+    line-height: 1;
+  }
+  .pencil-btn:hover {
+    background: rgba(255,255,255,0.12);
+    transform: scale(1.25) rotate(-10deg);
+  }
+
+  /* 応募あり badge button */
+  .btn-apply-badge {
+    width: 100%;
+    background: rgba(230,57,70,0.15);
+    color: var(--red);
+    border: 1px solid rgba(230,57,70,0.4);
+    border-radius: 7px;
+    padding: 9px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    text-align: center;
+  }
+  .btn-apply-badge:hover {
+    background: rgba(230,57,70,0.28);
+    transform: translateY(-1px);
+  }
+
   /* RESPONSIVE */
   @media (max-width: 640px) {
     .header-inner { flex-wrap: wrap; }
@@ -1357,33 +1393,47 @@ function openGroundModal(id) {
   editingGroundId = id || null;
   const g = id ? grounds.find(x => x.id === id) : null;
 
-  document.getElementById('g-team').value       = g ? g.team : '';
-  document.getElementById('g-name').value       = g ? g.name : '';
-  document.getElementById('g-location').value   = g ? g.location : '';
-  document.getElementById('g-note').value       = g ? g.note : '';
+  document.getElementById('g-team').value     = g ? g.team : '';
+  document.getElementById('g-name').value     = g ? g.name : '';
+  document.getElementById('g-location').value = g ? g.location : '';
+  document.getElementById('g-note').value     = g ? g.note : '';
 
-  // Parse stored date string back into picker fields
-  document.getElementById('g-date-picker').value  = '';
-  document.getElementById('g-time-start').value   = '';
-  document.getElementById('g-time-end').value     = '';
-  document.getElementById('g-date-preview').textContent = g && g.date ? '📅 ' + g.date : '';
+  // Parse stored date string (例: "6月15日(土) 9:00〜12:00") back into pickers
+  document.getElementById('g-date-picker').value = '';
+  document.getElementById('g-time-start').value  = '';
+  document.getElementById('g-time-end').value    = '';
+  if (g && g.date) {
+    // Try to extract date: YYYY-MM-DD from stored string is not available,
+    // so show as preview text only
+    document.getElementById('g-date-preview').textContent = '📅 ' + g.date;
+    // Try parse like "6月15日(土) 9:00〜12:00"
+    const dateMatch = g.date.match(/(\d+)月(\d+)日/);
+    const timeMatch = g.date.match(/(\d{1,2}:\d{2})〜(\d{1,2}:\d{2})/);
+    if (dateMatch) {
+      const now = new Date();
+      const mm = String(dateMatch[1]).padStart(2,'0');
+      const dd = String(dateMatch[2]).padStart(2,'0');
+      // Guess year: if month already passed use next year
+      let yr = now.getFullYear();
+      if (parseInt(dateMatch[1]) < now.getMonth()+1) yr++;
+      document.getElementById('g-date-picker').value = yr + '-' + mm + '-' + dd;
+    }
+    if (timeMatch) {
+      document.getElementById('g-time-start').value = timeMatch[1].padStart(5,'0');
+      document.getElementById('g-time-end').value   = timeMatch[2].padStart(5,'0');
+    }
+  } else {
+    document.getElementById('g-date-preview').textContent = '';
+  }
 
-  // Update modal title and buttons
+  // Modal title and buttons
   document.querySelector('#ground-modal h3').textContent = g ? 'グランドを編集する' : 'グランドを登録する';
   document.querySelector('#ground-modal .btn-save').textContent = g ? '更新する' : '登録する';
 
-  const extra = document.getElementById('ground-modal-extra');
+  const extra  = document.getElementById('ground-modal-extra');
   const delBtn = document.getElementById('btn-delete-ground');
-  const recruitBtn = document.getElementById('btn-toggle-recruit');
-  if (g) {
-    extra.style.display = 'block';
-    delBtn.style.display = 'block';
-    recruitBtn.textContent = g.recruiting ? '✅ 募集中（解除する）' : '⚡ 対戦相手を募集する';
-    recruitBtn.style.background = g.recruiting ? 'rgba(245,197,24,0.25)' : 'rgba(245,197,24,0.12)';
-  } else {
-    extra.style.display = 'none';
-    delBtn.style.display = 'none';
-  }
+  if (g) { extra.style.display = 'none'; delBtn.style.display = 'block'; }
+  else   { extra.style.display = 'none'; delBtn.style.display = 'none';  }
 
   openModal('ground-modal');
 }
@@ -1457,26 +1507,28 @@ function renderGrounds() {
   grid.innerHTML = '';
   [...grounds].reverse().forEach(g => {
     const apps = applications.filter(a => a.groundId === g.id);
-    const pending = apps.filter(a => a.status === 'pending');
-    const appBadge = pending.length > 0
-      ? `<span onclick="event.stopPropagation();openAppListModal(${g.id});" style="background:var(--red);color:#fff;font-size:11px;font-weight:700;border-radius:10px;padding:2px 8px;margin-left:6px;cursor:pointer;">応募 ${pending.length}件</span>`
+    const hasApp = apps.some(a => a.status === 'pending');
+
+    // 応募あり or 応募するボタン
+    const applyBtn = g.recruiting
+      ? (hasApp
+          ? `<button class="btn-apply-badge" onclick="openAppListModal(${g.id})">📋 応募あり</button>`
+          : `<button class="btn-recruit" style="background:rgba(29,185,84,0.15);color:var(--green);border-color:rgba(29,185,84,0.4);width:100%;" onclick="openApplyModal(${g.id})">📩 応募する</button>`)
       : '';
+
     grid.innerHTML += `
-      <div class="ground-card" onclick="openGroundModal(${g.id})" style="cursor:pointer;">
+      <div class="ground-card">
         <div class="ground-card-top">
-          <div class="ground-name">${g.name}${appBadge}</div>
-          <div style="display:flex;align-items:center;gap:6px;">
-            ${g.recruiting ? '<span class="recruit-badge">⚡ 募集中</span>' : ''}
+          <div class="ground-name">${g.name}</div>
+          <div style="display:flex;align-items:center;gap:8px;">
             <span class="ground-team-badge">${g.team}</span>
+            <button class="pencil-btn" onclick="openGroundModal(${g.id})" title="編集">✏️</button>
           </div>
         </div>
         ${g.date ? `<div class="ground-info">📅 <span>${g.date}</span></div>` : ''}
         ${g.location ? `<div class="ground-info">📍 <span>${g.location}</span></div>` : ''}
         ${g.note ? `<div class="ground-note">${g.note}</div>` : ''}
-        ${g.recruiting ? `
-        <div class="ground-actions" style="margin-top:12px;">
-          <button class="btn-recruit" style="background:rgba(29,185,84,0.15);color:var(--green);border-color:rgba(29,185,84,0.4);width:100%;" onclick="event.stopPropagation();openApplyModal(${g.id})">📩 応募する</button>
-        </div>` : ''}
+        ${applyBtn ? `<div class="ground-actions" style="margin-top:12px;">${applyBtn}</div>` : ''}
       </div>
     `;
   });
@@ -1569,9 +1621,9 @@ function submitApply() {
   const message = document.getElementById('apply-message').value.trim();
   if (!team) { alert('チームを選択してください'); return; }
   const g = grounds.find(x => x.id === currentApplyGroundId);
-  // Check duplicate pending
-  const dup = applications.find(a => a.groundId === currentApplyGroundId && a.fromTeam === team && a.status === 'pending');
-  if (dup) { alert('このチームはすでに申し込み済みです'); return; }
+  // 応募は1件まで
+  const existing = applications.find(a => a.groundId === currentApplyGroundId && a.status === 'pending');
+  if (existing) { alert('すでに応募があります。'); return; }
   applications.push({
     id: Date.now(),
     groundId: currentApplyGroundId,
@@ -1622,9 +1674,22 @@ function renderAppList() {
 
 function updateAppStatus(appId, status) {
   const a = applications.find(x => x.id === appId);
-  if (a) { a.status = status; save(); renderAppList(); renderGrounds(); }
-  const msg = status === 'accepted' ? '承諾しました ✓' : '辞退しました';
-  showToast(msg);
+  if (!a) return;
+  a.status = status;
+  if (status === 'accepted') {
+    // 対戦が確定したのでグランドカードを削除
+    grounds = grounds.filter(x => x.id !== a.groundId);
+    applications = applications.filter(x => x.groundId !== a.groundId);
+    save();
+    closeModal('applist-modal');
+    renderGrounds();
+    showToast('承諾しました！グランドを削除しました ✓');
+  } else {
+    save();
+    renderAppList();
+    renderGrounds();
+    showToast('辞退しました');
+  }
 }
 
 function populateTeamSelect() {
