@@ -982,6 +982,39 @@ let applications = [];
 let isSaving     = false;
 
 // スプレッドシートへ保存
+// iframeを使ってGASにPOSTデータを送信（CORS回避）
+function sendToGAS(payload) {
+  return new Promise((resolve) => {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = GAS_URL;
+    form.target = '_gas_iframe';
+    form.style.display = 'none';
+
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'payload';
+    input.value = JSON.stringify(payload);
+    form.appendChild(input);
+
+    let iframe = document.getElementById('_gas_iframe');
+    if (!iframe) {
+      iframe = document.createElement('iframe');
+      iframe.name = '_gas_iframe';
+      iframe.id = '_gas_iframe';
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+
+    // 2秒待って完了とみなす
+    setTimeout(resolve, 2000);
+  });
+}
+
 async function save() {
   if (!GAS_URL || GAS_URL === 'YOUR_GAS_URL_HERE') {
     // GAS未設定時はLocalStorageにフォールバック
@@ -1009,13 +1042,8 @@ async function save() {
         applications: applications
       }
     };
-    // no-cors で POST送信（GASはリダイレクト経由でPOSTを受け取る）
-    await fetch(GAS_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload)
-    });
+    // GASへ送信（iframeトリック経由でCORS回避）
+    await sendToGAS(payload);
     showSyncStatus('saved');
   } catch(e) {
     console.error('保存エラー:', e);
