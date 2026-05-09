@@ -485,7 +485,6 @@
   }
   .ground-card:hover {
     border-color: rgba(29,185,84,0.4);
-    transform: translateY(-2px);
   }
   .ground-card-top {
     display: flex;
@@ -1505,7 +1504,7 @@ function renderGrounds() {
     return;
   }
   grid.innerHTML = '';
-  [...grounds].reverse().forEach(g => {
+  [...grounds].filter(g => !g.confirmed).reverse().forEach(g => {
     const apps = applications.filter(a => a.groundId === g.id);
     const hasApp = apps.some(a => a.status === 'pending');
 
@@ -1677,13 +1676,19 @@ function updateAppStatus(appId, status) {
   if (!a) return;
   a.status = status;
   if (status === 'accepted') {
-    // 対戦が確定したのでグランドカードを削除
-    grounds = grounds.filter(x => x.id !== a.groundId);
-    applications = applications.filter(x => x.groundId !== a.groundId);
+    // 対戦確定：グランドを募集終了にする（データは保持）
+    const g = grounds.find(x => x.id === a.groundId);
+    if (g) { g.recruiting = false; g.confirmed = true; }
     save();
     closeModal('applist-modal');
-    renderGrounds();
-    showToast('承諾しました！グランドを削除しました ✓');
+    render();
+    // 対戦一覧タブへ切り替え
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector('.tab-btn[onclick*="schedule"]').classList.add('active');
+    document.getElementById('tab-schedule').classList.add('active');
+    renderSchedule();
+    showToast('対戦が確定しました ✓');
   } else {
     save();
     renderAppList();
