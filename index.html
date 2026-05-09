@@ -1547,7 +1547,7 @@ function renderGrounds() {
         </div>
         ${g.date ? `<div class="ground-info">📅 <span>${g.date}</span></div>` : ''}
         ${g.location ? `<div class="ground-info">📍 <span>${g.location}</span></div>` : ''}
-        ${g.note ? `<div class="ground-note">${g.note}</div>` : ''}
+        <div class="ground-note" style="min-height:36px;">${g.note || ''}</div>
         ${applyBtn ? `<div class="ground-actions" style="margin-top:12px;">${applyBtn}</div>` : ''}
       </div>
     `;
