@@ -1337,30 +1337,54 @@ function renderMatrix() {
 }
 
 // ===== GROUNDS =====
-function openGroundModal() {
-  document.getElementById('g-team').value = '';
-  document.getElementById('g-name').value = '';
-  document.getElementById('g-date-picker').value = '';
-  document.getElementById('g-time-start').value = '';
-  document.getElementById('g-time-end').value = '';
-  document.getElementById('g-date-preview').textContent = '';
-  document.getElementById('g-location').value = '';
-  document.getElementById('g-note').value = '';
+let editingGroundId = null;
+
+function openGroundModal(id) {
+  editingGroundId = id || null;
+  const g = id ? grounds.find(x => x.id === id) : null;
+
+  document.getElementById('g-team').value       = g ? g.team : '';
+  document.getElementById('g-name').value       = g ? g.name : '';
+  document.getElementById('g-location').value   = g ? g.location : '';
+  document.getElementById('g-note').value       = g ? g.note : '';
+
+  // Parse stored date string back into picker fields
+  document.getElementById('g-date-picker').value  = '';
+  document.getElementById('g-time-start').value   = '';
+  document.getElementById('g-time-end').value     = '';
+  document.getElementById('g-date-preview').textContent = g && g.date ? '📅 ' + g.date : '';
+
+  // Update modal title
+  document.querySelector('#ground-modal h3').textContent = g ? 'グランドを編集する' : 'グランドを登録する';
+  document.querySelector('#ground-modal .btn-save').textContent = g ? '更新する' : '登録する';
+
   openModal('ground-modal');
 }
 
 function saveGround() {
-  const team = document.getElementById('g-team').value;
-  const name = document.getElementById('g-name').value.trim();
-  const date = buildGDate();
+  const team     = document.getElementById('g-team').value;
+  const name     = document.getElementById('g-name').value.trim();
+  const date     = buildGDate() || (editingGroundId ? (grounds.find(x=>x.id===editingGroundId)||{}).date : '');
   const location = document.getElementById('g-location').value.trim();
-  const note = document.getElementById('g-note').value.trim();
+  const note     = document.getElementById('g-note').value.trim();
   if (!team || !name) { alert('チーム名とグランド名は必須です'); return; }
-  grounds.push({ id: Date.now(), team, name, date, location, note, recruiting: false });
-  save();
-  closeModal('ground-modal');
-  renderGrounds();
-  showToast('グランドを登録しました ✓');
+
+  if (editingGroundId) {
+    // 編集モード
+    const g = grounds.find(x => x.id === editingGroundId);
+    if (g) { g.team = team; g.name = name; g.date = date; g.location = location; g.note = note; }
+    save();
+    closeModal('ground-modal');
+    renderGrounds();
+    showToast('グランドを更新しました ✓');
+  } else {
+    // 新規登録
+    grounds.push({ id: Date.now(), team, name, date, location, note, recruiting: false });
+    save();
+    closeModal('ground-modal');
+    renderGrounds();
+    showToast('グランドを登録しました ✓');
+  }
 }
 
 function toggleRecruit(id) {
@@ -1407,6 +1431,7 @@ function renderGrounds() {
           </button>
           ${g.recruiting ? `<button class="btn-recruit" style="background:rgba(29,185,84,0.15);color:var(--green);border-color:rgba(29,185,84,0.4);" onclick="openApplyModal(${g.id})">📩 応募する</button>` : ''}
           ${apps.length > 0 ? `<button class="btn-recruit" style="background:rgba(245,197,24,0.12);color:var(--yellow);border-color:rgba(245,197,24,0.35);width:100%;margin-top:4px;" onclick="openAppListModal(${g.id})">📋 応募一覧を見る（${apps.length}件）</button>` : ''}
+          <button class="btn-recruit" style="background:rgba(99,179,237,0.12);color:#63b3ed;border-color:rgba(99,179,237,0.35);" onclick="openGroundModal(${g.id})">✏️ 編集</button>
           <button class="btn-del-ground" onclick="deleteGround(${g.id})">削除</button>
         </div>
       </div>
