@@ -156,7 +156,7 @@
     text-align: center;
     font-size: 11px;
     letter-spacing: 1px;
-    color: var(--gray);
+    color: #6b7280;
     text-transform: uppercase;
     font-weight: 700;
     border-bottom: 1px solid var(--border);
@@ -173,7 +173,7 @@
   .standings-table td {
     padding: 13px 14px;
     text-align: center;
-    color: var(--light);
+    color: #1f2937;
   }
   .standings-table td:first-child { text-align: left; font-weight: 700; }
   .rank-num {
@@ -223,7 +223,7 @@
   .matrix-table tbody .row-header {
     background: #f0f4f8;
     font-weight: 700;
-    color: var(--light);
+    color: #1f2937;
     font-size: 13px;
     padding: 10px 14px;
     white-space: nowrap;
@@ -331,7 +331,7 @@
   }
   .modal-subtitle {
     font-size: 12px;
-    color: var(--gray);
+    color: #6b7280;
     margin-bottom: 22px;
   }
   .game-header {
@@ -490,7 +490,7 @@
   .ground-name {
     font-size: 16px;
     font-weight: 700;
-    color: var(--white);
+    color: #1f2937;
   }
   .ground-team-badge {
     font-size: 11px;
@@ -505,7 +505,7 @@
   }
   .ground-info {
     font-size: 13px;
-    color: var(--gray);
+    color: #6b7280;
     margin-bottom: 6px;
     display: flex;
     gap: 6px;
@@ -514,7 +514,7 @@
   .ground-info span { color: var(--light); }
   .ground-note {
     font-size: 12px;
-    color: var(--gray);
+    color: #6b7280;
     margin-top: 8px;
     line-height: 1.5;
   }
@@ -616,7 +616,7 @@
   .ground-modal textarea:focus { border-color: var(--green); }
   .field-label {
     font-size: 12px;
-    color: var(--gray);
+    color: #374151;
     margin-bottom: 6px;
     display: block;
   }
@@ -1306,7 +1306,7 @@ function renderStandings() {
   const tbody = document.getElementById('standings-body');
   tbody.innerHTML = '';
   rows.forEach((r, i) => {
-    const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    const rankClass = '';
     const totalPossible = (TEAMS.length - 1) * 2;
     const pending = totalPossible - r.games;
     const pct = r.games > 0 ? (r.wins / r.games).toFixed(3).replace(/^0/, '') : '---';
@@ -1534,13 +1534,13 @@ function renderGrounds() {
     grid.innerHTML += `
       <div class="ground-card">
         <div class="ground-card-top">
-          <div class="ground-name">${g.name}</div>
+          <div class="ground-name" style="color:#1f2937;">${g.name}</div>
           <div style="display:flex;align-items:center;gap:8px;">
             <span class="ground-team-badge">${g.team}</span>
             <button class="pencil-btn" onclick="openGroundModal(${g.id})" title="編集">✏️</button>
           </div>
         </div>
-        ${g.date ? `<div class="ground-info">📅 <span>${g.date}</span></div>` : ''}
+        ${g.date ? `<div class="ground-info" style="color:#374151;">📅 <span>${g.date}</span></div>` : ''}
         ${g.location ? `<div class="ground-info">📍 <span>${g.location}</span></div>` : ''}
         <div class="ground-note" style="min-height:36px;">${g.note || ''}</div>
         ${applyBtn ? `<div class="ground-actions" style="margin-top:12px;">${applyBtn}</div>` : ''}
@@ -1582,7 +1582,7 @@ function openGroundDetailModal(id) {
   const apps = applications.filter(a => a.groundId === id);
   const container = document.getElementById('ground-detail-content');
   container.innerHTML = `
-    <h3 style="margin-bottom:6px;">${g.name}</h3>
+    <h3 style="margin-bottom:6px;color:#1f2937;">${g.name}</h3>
     <div style="margin-bottom:16px;">
       <span class="ground-team-badge">${g.team}</span>
       ${g.recruiting ? '<span class="recruit-badge" style="margin-left:8px;">⚡ 募集中</span>' : ''}
@@ -1673,7 +1673,7 @@ function renderAppList() {
   container.innerHTML = apps.map(a => `
     <div style="background:#f0f4f8;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-        <span style="font-weight:700;font-size:14px;color:var(--white);">${a.fromTeam}</span>
+        <span style="font-weight:700;font-size:14px;color:#1f2937;">${a.fromTeam}</span>
         <span style="font-size:12px;font-weight:700;color:${statusColor[a.status]};">${statusLabel[a.status]}</span>
       </div>
       ${a.message ? `<div style="font-size:12px;color:var(--gray);margin-bottom:10px;line-height:1.5;">${a.message}</div>` : ''}
@@ -1822,30 +1822,30 @@ function renderSchedule() {
     byDate[date].forEach(item => {
       if (item.type === 'scheduled') {
         html += `
-        <div style="background:var(--card);border:1px solid var(--border);border-left:3px solid var(--yellow);border-radius:10px;padding:16px 18px;margin-bottom:10px;">
+        <div style="background:#ffffff;border:1px solid #d1d9e0;border-left:3px solid var(--yellow);border-radius:10px;padding:16px 18px;margin-bottom:10px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
             <span style="font-size:11px;font-weight:700;background:rgba(245,197,24,0.15);color:var(--yellow);border:1px solid rgba(245,197,24,0.3);border-radius:10px;padding:2px 10px;">📅 対戦予定</span>
           </div>
           <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:12px;">
-            <span style="font-size:16px;font-weight:900;color:var(--white);">${item.teamA}</span>
+            <span style="font-size:16px;font-weight:900;color:#1f2937;">${item.teamA}</span>
             <span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--gray);">VS</span>
-            <span style="font-size:16px;font-weight:900;color:var(--white);">${item.teamB}</span>
+            <span style="font-size:16px;font-weight:900;color:#1f2937;">${item.teamB}</span>
           </div>
-          ${item.ground ? `<div style="font-size:12px;color:var(--gray);margin-bottom:3px;">🏟 ${item.ground}${item.location ? '　📍 ' + item.location : ''}</div>` : ''}
-          ${item.message ? `<div style="font-size:12px;color:var(--gray);margin-top:6px;line-height:1.5;">💬 ${item.message}</div>` : ''}
+          ${item.ground ? `<div style="font-size:12px;color:#6b7280;margin-bottom:3px;">🏟 ${item.ground}${item.location ? '　📍 ' + item.location : ''}</div>` : ''}
+          ${item.message ? `<div style="font-size:12px;color:#6b7280;margin-top:6px;line-height:1.5;">💬 ${item.message}</div>` : ''}
         </div>`;
       } else {
         const winnerColor = item.scoreA > item.scoreB ? 'var(--green)' : item.scoreB > item.scoreA ? 'var(--green)' : 'var(--yellow)';
         html += `
-        <div style="background:var(--card);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:10px;padding:16px 18px;margin-bottom:10px;">
+        <div style="background:#ffffff;border:1px solid #d1d9e0;border-left:3px solid var(--green);border-radius:10px;padding:16px 18px;margin-bottom:10px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
             <span style="font-size:11px;font-weight:700;background:rgba(29,185,84,0.12);color:var(--green);border:1px solid rgba(29,185,84,0.3);border-radius:10px;padding:2px 10px;">✅ 試合結果 第${item.gameNum}試合</span>
             <span style="font-size:12px;font-weight:700;color:${winnerColor};">${item.result}</span>
           </div>
           <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
-            <span style="font-size:15px;font-weight:900;color:${item.scoreA >= item.scoreB ? 'var(--white)' : 'var(--gray)'};">${item.teamA}</span>
-            <span style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;color:var(--white);">${item.scoreA} <span style="color:var(--gray);font-size:18px;">−</span> ${item.scoreB}</span>
-            <span style="font-size:15px;font-weight:900;color:${item.scoreB >= item.scoreA ? 'var(--white)' : 'var(--gray)'};">${item.teamB}</span>
+            <span style="font-size:15px;font-weight:900;color:${item.scoreA >= item.scoreB ? '#1f2937' : '#9ca3af'};">${item.teamA}</span>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;color:#1f2937;">${item.scoreA} <span style="color:#6b7280;font-size:18px;">−</span> ${item.scoreB}</span>
+            <span style="font-size:15px;font-weight:900;color:${item.scoreB >= item.scoreA ? '#1f2937' : '#9ca3af'};">${item.teamB}</span>
           </div>
         </div>`;
       }
