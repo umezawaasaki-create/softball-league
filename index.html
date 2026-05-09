@@ -660,9 +660,9 @@
   /* 応募あり badge button */
   .btn-apply-badge {
     width: 100%;
-    background: rgba(230,57,70,0.15);
-    color: var(--red);
-    border: 1px solid rgba(230,57,70,0.4);
+    background: rgba(201,134,10,0.12);
+    color: var(--yellow);
+    border: 1px solid rgba(201,134,10,0.4);
     border-radius: 7px;
     padding: 9px;
     font-family: 'Zen Kaku Gothic New', sans-serif;
@@ -673,7 +673,7 @@
     text-align: center;
   }
   .btn-apply-badge:hover {
-    background: rgba(230,57,70,0.28);
+    background: rgba(201,134,10,0.24);
     transform: translateY(-1px);
   }
 
@@ -1843,9 +1843,9 @@ function renderSchedule() {
             <span style="font-size:12px;font-weight:700;color:${winnerColor};">${item.result}</span>
           </div>
           <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
-            <span style="font-size:15px;font-weight:900;color:${item.scoreA >= item.scoreB ? '#1f2937' : '#9ca3af'};">${item.teamA}</span>
+            <span style="font-size:15px;font-weight:900;color:'#1f2937';">${item.teamA}</span>
             <span style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;color:#1f2937;">${item.scoreA} <span style="color:#6b7280;font-size:18px;">−</span> ${item.scoreB}</span>
-            <span style="font-size:15px;font-weight:900;color:${item.scoreB >= item.scoreA ? '#1f2937' : '#9ca3af'};">${item.teamB}</span>
+            <span style="font-size:15px;font-weight:900;color:'#1f2937';">${item.teamB}</span>
           </div>
         </div>`;
       }
