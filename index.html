@@ -709,7 +709,8 @@
     <button class="tab-btn active" onclick="switchTab('standings')">順位表</button>
     <button class="tab-btn" onclick="switchTab('matrix')">対戦表</button>
     <button class="tab-btn" onclick="switchTab('grounds')">グランド募集</button>
-    <button class="tab-btn" onclick="switchTab('schedule')">対戦一覧</button>
+    <button class="tab-btn" onclick="switchTab('schedule')">対戦予定</button>
+    <button class="tab-btn" onclick="switchTab('results-list')">対戦結果</button>
   </div>
 </nav>
 
@@ -772,10 +773,16 @@
     </div>
   </div>
 
-  <!-- ===== SCHEDULE TAB ===== -->
+  <!-- ===== SCHEDULE TAB (対戦予定) ===== -->
   <div class="tab-panel" id="tab-schedule">
-    <div class="section-title">確定済み対戦一覧</div>
+    <div class="section-title">対戦予定</div>
     <div id="schedule-list"></div>
+  </div>
+
+  <!-- ===== RESULTS LIST TAB (対戦結果) ===== -->
+  <div class="tab-panel" id="tab-results-list">
+    <div class="section-title">対戦結果</div>
+    <div id="results-list"></div>
   </div>
 </main>
 
@@ -1777,68 +1784,37 @@ function switchTab(name) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   event.currentTarget.classList.add('active');
   document.getElementById('tab-' + name).classList.add('active');
-  if (name === 'matrix') renderMatrix();
-  if (name === 'schedule') renderSchedule();
+  if (name === 'matrix')       renderMatrix();
+  if (name === 'schedule')     renderSchedule();
+  if (name === 'results-list') renderResultsList();
 }
 
 function renderSchedule() {
   const list = document.getElementById('schedule-list');
-  // Collect confirmed matches from applications (accepted) + played results
-  // Accepted applications
+  // 対戦予定: applications(accepted) から生成
   const confirmed = applications.filter(a => a.status === 'accepted').map(a => {
     const g = grounds.find(x => x.id === a.groundId);
     if (!g) return null;
     return {
-      type: 'scheduled',
       date: g.date || '日程未定',
       ground: g.name,
       location: g.location || '',
       teamA: g.team,
       teamB: a.fromTeam,
-      message: a.message || '',
-      appId: a.id,
-      groundId: g.id
+      message: a.message || ''
     };
   }).filter(Boolean);
 
-  // Played results from matrix
-  const played = [];
-  TEAMS.forEach((a, i) => {
-    TEAMS.forEach((b, j) => {
-      if (j <= i) return;
-      const games = getGames(a, b);
-      games.forEach((g, gi) => {
-        if (!g) return;
-        const scoreA = g.home === a ? g.homeScore : g.awayScore;
-        const scoreB = g.home === b ? g.homeScore : g.awayScore;
-        const result = scoreA > scoreB ? a + ' 勝利' : scoreB > scoreA ? b + ' 勝利' : '引分';
-        played.push({
-          type: 'played',
-          date: g.date || '日程未定',
-          teamA: a, teamB: b,
-          scoreA, scoreB, result,
-          gameNum: gi + 1
-        });
-      });
-    });
-  });
-
-  const all = [
-    ...confirmed.map(c => ({ ...c, sortDate: c.date })),
-    ...played.map(p => ({ ...p, sortDate: p.date }))
-  ];
-
-  if (all.length === 0) {
+  if (confirmed.length === 0) {
     list.innerHTML = `<div style="text-align:center;padding:48px 20px;color:var(--gray);font-size:14px;">
-      確定済みの対戦はまだありません。<br>
-      <span style="font-size:12px;">グランド募集で応募を承諾するか、対戦表に結果を入力すると表示されます。</span>
+      対戦予定はまだありません。<br>
+      <span style="font-size:12px;">グランド募集で応募を承諾すると表示されます。</span>
     </div>`;
     return;
   }
 
-  // Group by date
   const byDate = {};
-  all.forEach(item => {
+  confirmed.forEach(item => {
     const key = item.date || '日程未定';
     if (!byDate[key]) byDate[key] = [];
     byDate[key].push(item);
@@ -1852,47 +1828,101 @@ function renderSchedule() {
         ${date}
       </div>`;
     byDate[date].forEach(item => {
-      if (item.type === 'scheduled') {
-        html += `
-        <div style="background:#ffffff;border:1px solid #d1d9e0;border-left:3px solid var(--yellow);border-radius:10px;padding:16px 18px;margin-bottom:10px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-            <span style="font-size:11px;font-weight:700;background:rgba(245,197,24,0.15);color:var(--yellow);border:1px solid rgba(245,197,24,0.3);border-radius:10px;padding:2px 10px;">📅 対戦予定</span>
-          </div>
-          <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:12px;">
-            <span style="font-size:16px;font-weight:900;color:#1f2937;">${item.teamA}</span>
-            <span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--gray);">VS</span>
-            <span style="font-size:16px;font-weight:900;color:#1f2937;">${item.teamB}</span>
-          </div>
-          ${item.ground ? `<div style="font-size:12px;color:#6b7280;margin-bottom:3px;">🏟 ${item.ground}${item.location ? '　📍 ' + item.location : ''}</div>` : ''}
-          ${item.message ? `<div style="font-size:12px;color:#6b7280;margin-top:6px;line-height:1.5;">💬 ${item.message}</div>` : ''}
-        </div>`;
-      } else {
-        const winnerColor = item.scoreA > item.scoreB ? 'var(--green)' : item.scoreB > item.scoreA ? 'var(--green)' : 'var(--yellow)';
-        html += `
-        <div style="background:#ffffff;border:1px solid #d1d9e0;border-left:3px solid var(--green);border-radius:10px;padding:16px 18px;margin-bottom:10px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-            <span style="font-size:11px;font-weight:700;background:rgba(29,185,84,0.12);color:var(--green);border:1px solid rgba(29,185,84,0.3);border-radius:10px;padding:2px 10px;">✅ 試合結果 第${item.gameNum}試合</span>
-            <span style="font-size:12px;font-weight:700;color:${winnerColor};">${item.result}</span>
-          </div>
-          <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
-            <span style="font-size:15px;font-weight:900;color:'#1f2937';">${item.teamA}</span>
-            <span style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;color:#1f2937;">${item.scoreA} <span style="color:#6b7280;font-size:18px;">−</span> ${item.scoreB}</span>
-            <span style="font-size:15px;font-weight:900;color:'#1f2937';">${item.teamB}</span>
-          </div>
-        </div>`;
-      }
+      html += `
+      <div style="background:#ffffff;border:1px solid #d1d9e0;border-left:3px solid var(--yellow);border-radius:10px;padding:16px 18px;margin-bottom:10px;">
+        <div style="margin-bottom:10px;">
+          <span style="font-size:11px;font-weight:700;background:rgba(245,197,24,0.15);color:var(--yellow);border:1px solid rgba(245,197,24,0.3);border-radius:10px;padding:2px 10px;">📅 対戦予定</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:12px;">
+          <span style="font-size:16px;font-weight:900;color:#1f2937;">${item.teamA}</span>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--gray);">VS</span>
+          <span style="font-size:16px;font-weight:900;color:#1f2937;">${item.teamB}</span>
+        </div>
+        ${item.ground ? `<div style="font-size:12px;color:#6b7280;margin-bottom:3px;">🏟 ${item.ground}${item.location ? '　📍 ' + item.location : ''}</div>` : ''}
+        ${item.message ? `<div style="font-size:12px;color:#6b7280;margin-top:6px;line-height:1.5;">💬 ${item.message}</div>` : ''}
+      </div>`;
     });
     html += '</div>';
   });
-
   list.innerHTML = html;
 }
+
+function renderResultsList() {
+  const list = document.getElementById('results-list');
+  // 対戦結果: 対戦表に入力済みのスコアから生成
+  const played = [];
+  TEAMS.forEach((a, i) => {
+    TEAMS.forEach((b, j) => {
+      if (j <= i) return;
+      const games = getGames(a, b);
+      games.forEach((g, gi) => {
+        if (!g) return;
+        const scoreA = g.home === a ? g.homeScore : g.awayScore;
+        const scoreB = g.home === b ? g.homeScore : g.awayScore;
+        const winner = scoreA > scoreB ? a : scoreB > scoreA ? b : null;
+        played.push({
+          date: g.date || '日程未定',
+          teamA: a, teamB: b,
+          scoreA, scoreB, winner,
+          gameNum: gi + 1
+        });
+      });
+    });
+  });
+
+  if (played.length === 0) {
+    list.innerHTML = `<div style="text-align:center;padding:48px 20px;color:var(--gray);font-size:14px;">
+      試合結果はまだありません。<br>
+      <span style="font-size:12px;">対戦表にスコアを入力すると表示されます。</span>
+    </div>`;
+    return;
+  }
+
+  // 日付でグループ化
+  const byDate = {};
+  played.forEach(item => {
+    const key = item.date || '日程未定';
+    if (!byDate[key]) byDate[key] = [];
+    byDate[key].push(item);
+  });
+
+  let html = '';
+  Object.keys(byDate).sort().forEach(date => {
+    html += `<div style="margin-bottom:28px;">
+      <div style="font-size:12px;font-weight:700;color:var(--green);letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+        <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);"></span>
+        ${date}
+      </div>`;
+    byDate[date].forEach(item => {
+      const winnerColor = item.winner ? 'var(--green)' : 'var(--yellow)';
+      const resultLabel = item.winner ? item.winner + ' 勝利' : '引分';
+      const styleA = item.winner === item.teamA ? 'font-weight:900;color:var(--green);font-size:17px;' : item.winner === item.teamB ? 'color:#9ca3af;font-size:15px;' : 'font-size:15px;color:#1f2937;';
+      const styleB = item.winner === item.teamB ? 'font-weight:900;color:var(--green);font-size:17px;' : item.winner === item.teamA ? 'color:#9ca3af;font-size:15px;' : 'font-size:15px;color:#1f2937;';
+      html += `
+      <div style="background:#ffffff;border:1px solid #d1d9e0;border-left:3px solid var(--green);border-radius:10px;padding:16px 18px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <span style="font-size:11px;font-weight:700;background:rgba(29,185,84,0.12);color:var(--green);border:1px solid rgba(29,185,84,0.3);border-radius:10px;padding:2px 10px;">✅ 試合結果 第${item.gameNum}試合</span>
+          <span style="font-size:12px;font-weight:700;color:${winnerColor};">${resultLabel}</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
+          <span style="${styleA}">${item.teamA}</span>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;color:#1f2937;letter-spacing:2px;">${item.scoreA}<span style="color:#9ca3af;font-size:18px;margin:0 4px;">－</span>${item.scoreB}</span>
+          <span style="${styleB}">${item.teamB}</span>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  list.innerHTML = html;
+}
+
 
 function render() {
   renderStandings();
   renderMatrix();
   renderGrounds();
   renderSchedule();
+  renderResultsList();
 }
 
 // Init
