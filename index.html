@@ -1809,51 +1809,66 @@ function renderSchedule() {
   const confirmed = applications.filter(a => a.status === 'accepted').map(a => {
     const g = grounds.find(x => x.id === a.groundId);
     if (!g) return null;
-    return {
-      date:     formatDate(g.date),
-      ground:   g.name     || '',
-      location: g.location || '',
-      teamA:    g.team,
-      teamB:    a.fromTeam,
-      message:  a.message  || ''
-    };
+    return { date: formatDate(g.date), rawDate: g.date||'', ground: g.name||'',
+             location: g.location||'', teamA: g.team, teamB: a.fromTeam, message: a.message||'' };
   }).filter(Boolean);
 
   if (confirmed.length === 0) {
-    list.innerHTML = `<div style="text-align:center;padding:48px 20px;color:var(--gray);font-size:14px;">
-      対戦予定はまだありません。<br>
-      <span style="font-size:12px;">グランド募集で応募を承諾すると表示されます。</span>
-    </div>`;
+    list.innerHTML = '<div style="text-align:center;padding:48px 20px;color:var(--gray);font-size:14px;">対戦予定はまだありません。</div>';
     return;
   }
 
-  const byDate = {};
-  confirmed.forEach(item => {
-    if (!byDate[item.date]) byDate[item.date] = [];
-    byDate[item.date].push(item);
-  });
+  const allTeams   = [...new Set(confirmed.flatMap(i=>[i.teamA,i.teamB]))].sort();
+  const allGrounds = [...new Set(confirmed.map(i=>i.ground).filter(Boolean))].sort();
 
-  let html = '';
-  Object.keys(byDate).sort().forEach(date => {
-    byDate[date].forEach(item => {
-      html += `
-      <div style="background:#ffffff;border:1px solid #d1d9e0;border-left:4px solid var(--yellow);border-radius:12px;padding:18px 20px;margin-bottom:14px;">
-        <div style="margin-bottom:4px;">
-          <span style="font-size:11px;font-weight:700;background:rgba(245,197,24,0.15);color:var(--yellow);border:1px solid rgba(245,197,24,0.3);border-radius:10px;padding:2px 10px;">📅 対戦予定</span>
-        </div>
-        <div style="font-size:18px;font-weight:900;color:#1f2937;margin:10px 0 12px;">${item.date}</div>
-        <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:14px;">
-          <span style="font-size:18px;font-weight:900;color:#1f2937;">${item.teamA}</span>
-          <span style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--gray);">VS</span>
-          <span style="font-size:18px;font-weight:900;color:#1f2937;">${item.teamB}</span>
-        </div>
-        ${item.ground   ? `<div style="font-size:13px;color:#6b7280;margin-bottom:3px;">🏟 ${item.ground}</div>` : ''}
-        ${item.location ? `<div style="font-size:13px;color:#6b7280;margin-bottom:3px;">📍 ${item.location}</div>` : ''}
-        ${item.message  ? `<div style="font-size:12px;color:#6b7280;margin-top:6px;line-height:1.5;">💬 ${item.message}</div>` : ''}
-      </div>`;
-    });
+  list.innerHTML = `
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+      <select id="sch-sort" onchange="applySchFilter()" style="flex:1;min-width:110px;padding:7px 10px;border:1px solid #d1d9e0;border-radius:8px;font-size:13px;">
+        <option value="date">📅 日付順</option>
+        <option value="team">👥 チームごと</option>
+        <option value="ground">🏟 グランドごと</option>
+      </select>
+      <select id="sch-team" onchange="applySchFilter()" style="flex:1;min-width:110px;padding:7px 10px;border:1px solid #d1d9e0;border-radius:8px;font-size:13px;">
+        <option value="">チーム：すべて</option>
+        ${allTeams.map(t=>`<option value="${t}">${t}</option>`).join('')}
+      </select>
+      <select id="sch-ground" onchange="applySchFilter()" style="flex:1;min-width:110px;padding:7px 10px;border:1px solid #d1d9e0;border-radius:8px;font-size:13px;">
+        <option value="">グランド：すべて</option>
+        ${allGrounds.map(g=>`<option value="${g}">${g}</option>`).join('')}
+      </select>
+    </div>
+    <div id="sch-cards"></div>`;
+
+  window._schData = confirmed;
+  applySchFilter();
+}
+
+function applySchFilter() {
+  const sort   = document.getElementById('sch-sort').value;
+  const team   = document.getElementById('sch-team').value;
+  const ground = document.getElementById('sch-ground').value;
+  let items = (window._schData||[]).filter(i => {
+    if (team   && i.teamA!==team   && i.teamB!==team)   return false;
+    if (ground && i.ground!==ground) return false;
+    return true;
   });
-  list.innerHTML = html;
+  const key = sort==='date' ? 'rawDate' : sort==='team' ? 'teamA' : 'ground';
+  items.sort((a,b)=>(a[key]||'').localeCompare(b[key]||''));
+
+  const cards = document.getElementById('sch-cards');
+  if (!items.length) { cards.innerHTML='<div style="text-align:center;padding:32px;color:var(--gray);font-size:13px;">条件に合う対戦予定がありません。</div>'; return; }
+  cards.innerHTML = items.map(item=>`
+    <div style="background:#fff;border:1px solid #d1d9e0;border-left:4px solid var(--yellow);border-radius:12px;padding:18px 20px;margin-bottom:14px;">
+      <div style="font-size:18px;font-weight:900;color:#1f2937;margin-bottom:12px;">${item.date}</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:12px;">
+        <span style="font-size:18px;font-weight:900;">${item.teamA}</span>
+        <span style="font-size:18px;font-weight:700;color:var(--gray);">VS</span>
+        <span style="font-size:18px;font-weight:900;">${item.teamB}</span>
+      </div>
+      ${item.ground   ? `<div style="font-size:13px;color:#6b7280;margin-bottom:3px;">🏟 ${item.ground}</div>` : ''}
+      ${item.location ? `<div style="font-size:13px;color:#6b7280;">📍 ${item.location}</div>` : ''}
+      ${item.message  ? `<div style="font-size:12px;color:#6b7280;margin-top:6px;">💬 ${item.message}</div>` : ''}
+    </div>`).join('');
 }
 
 function renderResultsList() {
