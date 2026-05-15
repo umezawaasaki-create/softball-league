@@ -1847,10 +1847,8 @@ function renderSchedule() {
 
   function toSortKey(raw) {
     if (!raw) return '9999-99-99';
-    // ISO形式
     const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
     if (iso) return iso[0];
-    // JST変換後のISO (formatDate後)
     const slash = raw.match(/(\d{1,2})\/(\d{1,2})/);
     if (slash) return '2026-' + slash[1].padStart(2,'0') + '-' + slash[2].padStart(2,'0');
     const jp = raw.match(/(\d{1,2})月(\d{1,2})日/);
@@ -1880,11 +1878,11 @@ function renderSchedule() {
     return;
   }
 
-  const teams      = [...new Set(confirmed.flatMap(i => [i.teamA, i.teamB]))].sort();
+  const teams       = [...new Set(confirmed.flatMap(i => [i.teamA, i.teamB]))].sort();
   const groundNames = [...new Set(confirmed.map(i => i.ground).filter(Boolean))].sort();
 
   list.innerHTML = `
-    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+    <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
       <select id="sch-sort" style="flex:1;min-width:120px;padding:6px 10px;border:1px solid #d1d9e0;border-radius:8px;font-size:13px;background:#fff;">
         <option value="date">📅 日付順</option>
         <option value="team">👥 チームごと</option>
@@ -1901,6 +1899,26 @@ function renderSchedule() {
     </div>
     <div id="sch-cards"></div>`;
 
+  function cardHTML(item) {
+    return `
+      <div style="background:#ffffff;border:1px solid #d1d9e0;border-left:3px solid var(--yellow);border-radius:10px;padding:14px 16px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:10px;">
+          <span style="font-size:15px;font-weight:900;color:#1f2937;">${item.teamA}</span>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;color:var(--gray);">VS</span>
+          <span style="font-size:15px;font-weight:900;color:#1f2937;">${item.teamB}</span>
+        </div>
+        ${item.ground   ? `<div style="font-size:12px;color:#6b7280;margin-bottom:2px;">🏟 ${item.ground}${item.location ? '　📍 '+item.location : ''}</div>` : ''}
+        ${item.message  ? `<div style="font-size:12px;color:#6b7280;margin-top:4px;line-height:1.5;">💬 ${item.message}</div>` : ''}
+      </div>`;
+  }
+
+  function groupHeader(label, emoji) {
+    return `<div style="display:flex;align-items:center;gap:8px;margin:20px 0 8px;">
+      <span style="font-size:18px;font-weight:900;color:#1f2937;">${emoji} ${label}</span>
+      <div style="flex:1;height:2px;background:linear-gradient(to right,var(--green),transparent);border-radius:2px;"></div>
+    </div>`;
+  }
+
   function applyFilter() {
     const sort   = document.getElementById('sch-sort').value;
     const team   = document.getElementById('sch-team').value;
@@ -1912,27 +1930,61 @@ function renderSchedule() {
       return true;
     });
 
-    if (sort === 'date')   items.sort((a,b) => toSortKey(a.rawDate).localeCompare(toSortKey(b.rawDate)));
-    if (sort === 'team')   items.sort((a,b) => a.teamA.localeCompare(b.teamA));
-    if (sort === 'ground') items.sort((a,b) => (a.ground||'').localeCompare(b.ground||''));
-
     const cards = document.getElementById('sch-cards');
     if (items.length === 0) {
       cards.innerHTML = `<div style="text-align:center;padding:32px 20px;color:var(--gray);font-size:13px;">条件に合う対戦予定がありません。</div>`;
       return;
     }
-    cards.innerHTML = items.map(item => `
-      <div style="background:#ffffff;border:1px solid #d1d9e0;border-left:3px solid var(--yellow);border-radius:10px;padding:16px 18px;margin-bottom:10px;">
-        <div style="font-size:11px;font-weight:700;background:rgba(245,197,24,0.15);color:var(--yellow);border:1px solid rgba(245,197,24,0.3);border-radius:10px;padding:2px 10px;display:inline-block;margin-bottom:8px;">📅 対戦予定</div>
-        <div style="font-size:14px;font-weight:700;color:#374151;margin-bottom:10px;">${item.date}</div>
-        <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:12px;">
-          <span style="font-size:16px;font-weight:900;color:#1f2937;">${item.teamA}</span>
-          <span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--gray);">VS</span>
-          <span style="font-size:16px;font-weight:900;color:#1f2937;">${item.teamB}</span>
-        </div>
-        ${item.ground ? `<div style="font-size:12px;color:#6b7280;margin-bottom:3px;">🏟 ${item.ground}${item.location ? '　📍 ' + item.location : ''}</div>` : ''}
-        ${item.message ? `<div style="font-size:12px;color:#6b7280;margin-top:6px;line-height:1.5;">💬 ${item.message}</div>` : ''}
-      </div>`).join('');
+
+    let html = '';
+
+    if (sort === 'date') {
+      // 日付ソートキーで並べ、同じキーでグループ化
+      items.sort((a, b) => toSortKey(a.rawDate).localeCompare(toSortKey(b.rawDate)));
+      const groups = {};
+      const order  = [];
+      items.forEach(item => {
+        const key = item.date || '日程未定';
+        if (!groups[key]) { groups[key] = []; order.push(key); }
+        groups[key].push(item);
+      });
+      order.forEach(key => {
+        html += groupHeader(key, '📅');
+        groups[key].forEach(item => { html += cardHTML(item); });
+      });
+
+    } else if (sort === 'team') {
+      // 各試合はチームA・チームBの両方のグループに入る
+      const groups = {};
+      const order  = [];
+      items.forEach(item => {
+        [item.teamA, item.teamB].forEach(t => {
+          if (!groups[t]) { groups[t] = []; order.push(t); }
+          // 重複を避ける
+          if (!groups[t].includes(item)) groups[t].push(item);
+        });
+      });
+      order.sort().forEach(key => {
+        html += groupHeader(key, '👥');
+        groups[key].forEach(item => { html += cardHTML(item); });
+      });
+
+    } else if (sort === 'ground') {
+      items.sort((a, b) => (a.ground || '').localeCompare(b.ground || ''));
+      const groups = {};
+      const order  = [];
+      items.forEach(item => {
+        const key = item.ground || 'グランド未定';
+        if (!groups[key]) { groups[key] = []; order.push(key); }
+        groups[key].push(item);
+      });
+      order.forEach(key => {
+        html += groupHeader(key, '🏟');
+        groups[key].forEach(item => { html += cardHTML(item); });
+      });
+    }
+
+    cards.innerHTML = html;
   }
 
   ['sch-sort','sch-team','sch-ground'].forEach(id =>
