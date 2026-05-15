@@ -1224,7 +1224,8 @@ function openResultModal(teamA, teamB) {
         <div style="font-size:12px;font-weight:700;color:var(--light);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
           <span>第${i+1}試合</span>
           <button onclick="clearGame(${i})"
-            style="background:rgba(230,57,70,0.10);color:var(--red);border:1px solid rgba(230,57,70,0.25);border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;font-family:'Zen Kaku Gothic New',sans-serif;cursor:pointer;opacity:${g ? 1 : 0.4};"
+            id="clear-btn-${i}"
+            style="background:${g ? 'rgba(230,57,70,0.18)' : 'rgba(230,57,70,0.06)'};color:${g ? 'var(--red)' : '#bbb'};border:1px solid ${g ? 'rgba(230,57,70,0.5)' : 'rgba(0,0,0,0.1)'};border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;font-family:'Zen Kaku Gothic New',sans-serif;cursor:pointer;"
             title="第${i+1}試合をクリア">
             🗑 クリア
           </button>
