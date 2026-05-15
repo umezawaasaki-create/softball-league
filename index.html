@@ -773,13 +773,13 @@
     </div>
   </div>
 
-  <!-- ===== SCHEDULE TAB (対戦予定) ===== -->
+  <!-- ===== SCHEDULE TAB ===== -->
   <div class="tab-panel" id="tab-schedule">
     <div class="section-title">対戦予定</div>
     <div id="schedule-list"></div>
   </div>
 
-  <!-- ===== RESULTS LIST TAB (対戦結果) ===== -->
+  <!-- ===== RESULTS LIST TAB ===== -->
   <div class="tab-panel" id="tab-results-list">
     <div class="section-title">対戦結果</div>
     <div id="results-list"></div>
@@ -793,8 +793,7 @@
     <div class="modal-subtitle" id="modal-pair-label"></div>
     <div id="games-container"></div>
     <div class="modal-actions" style="flex-wrap:wrap;gap:8px;">
-      <button class="btn-delete" onclick="clearResults()" id="btn-clear"
-        style="order:0;flex:0 0 auto;">
+      <button class="btn-delete" onclick="clearResults()" id="btn-clear" style="order:0;flex:0 0 auto;">
         🗑 両試合クリア
       </button>
       <div style="flex:1;"></div>
@@ -984,24 +983,22 @@ const TEAMS = [
 function formatDate(raw) {
   if (!raw) return '日程未定';
   const s = String(raw).trim();
-  // ISO形式: 2026-04-28T15:00:00.000Z など
-  const isoMatch = s.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
-  if (isoMatch) {
-    // UTCからJST(+9)に変換
+  const isoT = s.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+  if (isoT) {
     const d = new Date(s);
     const jst = new Date(d.getTime() + 9*60*60*1000);
     const wd = ['日','月','火','水','木','金','土'][jst.getUTCDay()];
     const hh = String(jst.getUTCHours()).padStart(2,'0');
-    const mm2 = String(jst.getUTCMinutes()).padStart(2,'0');
-    return (jst.getUTCMonth()+1) + '月' + jst.getUTCDate() + '日(' + wd + ') ' + hh + ':' + mm2;
+    const mm = String(jst.getUTCMinutes()).padStart(2,'0');
+    return (jst.getUTCMonth()+1) + '月' + jst.getUTCDate() + '日(' + wd + ') ' + hh + ':' + mm;
   }
-  // すでに日本語形式ならそのまま
+  const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (iso) {
+    const d = new Date(s + 'T00:00:00');
+    const wd = ['日','月','火','水','木','金','土'][d.getDay()];
+    return (d.getMonth()+1) + '月' + d.getDate() + '日(' + wd + ')';
+  }
   return s;
-}
-
-function formatDateRange(raw) {
-  if (!raw) return '日程未定';
-  return formatDate(raw);
 }
 
 // Storage keys
@@ -1219,17 +1216,12 @@ function openResultModal(teamA, teamB) {
     const winSelB = storedWinner === 'B' ? 'selected-win'  : storedWinner === 'A' ? 'selected-lose' : storedWinner === 'draw' ? 'selected-draw' : '';
     const winSelD = storedWinner === 'draw' ? 'selected-draw' : '';
 
-    // クリアボタンスタイル：常に濃い赤
-    const clearBtnStyle = 'background:rgba(230,57,70,0.10);color:var(--red);border:1px solid rgba(230,57,70,0.3);';
-
     container.innerHTML += `
       <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px 16px 14px;margin-bottom:14px;">
         <div style="font-size:12px;font-weight:700;color:var(--light);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
           <span>第${i+1}試合</span>
           <button onclick="clearGame(${i})"
-            id="clear-btn-${i}"
-            style="${clearBtnStyle}border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;font-family:'Zen Kaku Gothic New',sans-serif;cursor:pointer;"
-            title="第${i+1}試合をクリア">
+            style="background:rgba(230,57,70,0.10);color:var(--red);border:1px solid rgba(230,57,70,0.3);border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;font-family:'Zen Kaku Gothic New',sans-serif;cursor:pointer;">
             🗑 クリア
           </button>
         </div>
@@ -1321,23 +1313,6 @@ function clearResults() {
 function clearGame(gameIdx) {
   const key = pairKey(currentTeamA, currentTeamB);
   const arr = results[key] ? [...results[key]] : [null, null];
-  if (!arr[gameIdx]) {
-    // データなし → UIのみリセット（勝者選択・スコアをクリア）
-    selectedWinner[gameIdx] = null;
-    // ボタンスタイルをリセット
-    ['A','B','draw'].forEach(c => {
-      const btn = document.getElementById('winner-' + gameIdx + '-' + c);
-      if (btn) btn.className = 'winner-btn';
-    });
-    const sa = document.getElementById('score-a-' + gameIdx);
-    const sb = document.getElementById('score-b-' + gameIdx);
-    const dt = document.getElementById('game-date-' + gameIdx);
-    if (sa) sa.value = '';
-    if (sb) sb.value = '';
-    if (dt) dt.value = '';
-    showToast('第' + (gameIdx + 1) + '試合の入力をクリアしました');
-    return;
-  }
   arr[gameIdx] = null;
   // If both null, remove the key entirely
   if (!arr[0] && !arr[1]) {
@@ -1837,9 +1812,9 @@ function switchTab(name) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   event.currentTarget.classList.add('active');
   document.getElementById('tab-' + name).classList.add('active');
-  if (name === 'matrix')        renderMatrix();
-  if (name === 'schedule')      renderSchedule();
-  if (name === 'results-list')  renderResultsList();
+  if (name === 'matrix')       renderMatrix();
+  if (name === 'schedule')     renderSchedule();
+  if (name === 'results-list') renderResultsList();
 }
 
 function renderSchedule() {
@@ -1847,12 +1822,14 @@ function renderSchedule() {
 
   function toSortKey(raw) {
     if (!raw) return '9999-99-99';
-    const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if (iso) return iso[0];
+    const isoT = raw.match(/^(\d{4})-(\d{2})-(\d{2})T/);
+    if (isoT) return isoT[1]+'-'+isoT[2]+'-'+isoT[3];
+    const iso  = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (iso)  return iso[0];
     const slash = raw.match(/(\d{1,2})\/(\d{1,2})/);
-    if (slash) return '2026-' + slash[1].padStart(2,'0') + '-' + slash[2].padStart(2,'0');
+    if (slash) return '2026-'+slash[1].padStart(2,'0')+'-'+slash[2].padStart(2,'0');
     const jp = raw.match(/(\d{1,2})月(\d{1,2})日/);
-    if (jp) return '2026-' + jp[1].padStart(2,'0') + '-' + jp[2].padStart(2,'0');
+    if (jp)  return '2026-'+jp[1].padStart(2,'0')+'-'+jp[2].padStart(2,'0');
     return raw;
   }
 
@@ -1878,8 +1855,8 @@ function renderSchedule() {
     return;
   }
 
-  const teams       = [...new Set(confirmed.flatMap(i => [i.teamA, i.teamB]))].sort();
-  const groundNames = [...new Set(confirmed.map(i => i.ground).filter(Boolean))].sort();
+  const allTeams   = [...new Set(confirmed.flatMap(i => [i.teamA, i.teamB]))].sort();
+  const allGrounds = [...new Set(confirmed.map(i => i.ground).filter(Boolean))].sort();
 
   list.innerHTML = `
     <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
@@ -1890,18 +1867,20 @@ function renderSchedule() {
       </select>
       <select id="sch-team" style="flex:1;min-width:120px;padding:6px 10px;border:1px solid #d1d9e0;border-radius:8px;font-size:13px;background:#fff;">
         <option value="">チーム：すべて</option>
-        ${teams.map(t => `<option value="${t}">${t}</option>`).join('')}
+        ${allTeams.map(t => `<option value="${t}">${t}</option>`).join('')}
       </select>
       <select id="sch-ground" style="flex:1;min-width:120px;padding:6px 10px;border:1px solid #d1d9e0;border-radius:8px;font-size:13px;background:#fff;">
         <option value="">グランド：すべて</option>
-        ${groundNames.map(g => `<option value="${g}">${g}</option>`).join('')}
+        ${allGrounds.map(g => `<option value="${g}">${g}</option>`).join('')}
       </select>
     </div>
     <div id="sch-cards"></div>`;
 
-  function cardHTML(item) {
+  // カード1枚のHTML（日付は表示しない：グループ見出しに出すため）
+  function cardHTML(item, hideDate) {
     return `
-      <div style="background:#ffffff;border:1px solid #d1d9e0;border-left:3px solid var(--yellow);border-radius:10px;padding:14px 16px;margin-bottom:8px;">
+      <div style="background:#fff;border:1px solid #d1d9e0;border-left:3px solid var(--yellow);border-radius:10px;padding:14px 16px;margin-bottom:8px;">
+        ${!hideDate && item.date ? `<div style="font-size:12px;color:#6b7280;margin-bottom:8px;">📅 ${item.date}</div>` : ''}
         <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:10px;">
           <span style="font-size:15px;font-weight:900;color:#1f2937;">${item.teamA}</span>
           <span style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;color:var(--gray);">VS</span>
@@ -1912,11 +1891,13 @@ function renderSchedule() {
       </div>`;
   }
 
-  function groupHeader(label, emoji) {
-    return `<div style="display:flex;align-items:center;gap:8px;margin:20px 0 8px;">
-      <span style="font-size:18px;font-weight:900;color:#1f2937;">${emoji} ${label}</span>
-      <div style="flex:1;height:2px;background:linear-gradient(to right,var(--green),transparent);border-radius:2px;"></div>
-    </div>`;
+  // グループ見出し
+  function groupHeader(label, emoji, count) {
+    return `
+      <div style="display:flex;align-items:center;gap:10px;margin:22px 0 8px;padding-bottom:6px;border-bottom:2px solid var(--green);">
+        <span style="font-size:20px;font-weight:900;color:#1f2937;">${emoji} ${label}</span>
+        <span style="font-size:12px;color:var(--gray);font-weight:700;">${count}試合</span>
+      </div>`;
   }
 
   function applyFilter() {
@@ -1939,48 +1920,51 @@ function renderSchedule() {
     let html = '';
 
     if (sort === 'date') {
-      // 日付ソートキーで並べ、同じキーでグループ化
+      // 日付でソートしてグループ化
       items.sort((a, b) => toSortKey(a.rawDate).localeCompare(toSortKey(b.rawDate)));
-      const groups = {};
-      const order  = [];
+      const groups = new Map();
       items.forEach(item => {
         const key = item.date || '日程未定';
-        if (!groups[key]) { groups[key] = []; order.push(key); }
-        groups[key].push(item);
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(item);
       });
-      order.forEach(key => {
-        html += groupHeader(key, '📅');
-        groups[key].forEach(item => { html += cardHTML(item); });
+      groups.forEach((group, key) => {
+        html += groupHeader(key, '📅', group.length);
+        group.forEach(item => { html += cardHTML(item, true); });
       });
 
     } else if (sort === 'team') {
-      // 各試合はチームA・チームBの両方のグループに入る
-      const groups = {};
-      const order  = [];
+      // チームでグループ化（各試合は両チームに表示）
+      const groups = new Map();
+      allTeams.filter(t => !team || t === team).forEach(t => groups.set(t, []));
       items.forEach(item => {
         [item.teamA, item.teamB].forEach(t => {
-          if (!groups[t]) { groups[t] = []; order.push(t); }
-          // 重複を避ける
-          if (!groups[t].includes(item)) groups[t].push(item);
+          if (!team || t === team) {
+            if (!groups.has(t)) groups.set(t, []);
+            if (!groups.get(t).find(x => x === item)) groups.get(t).push(item);
+          }
         });
       });
-      order.sort().forEach(key => {
-        html += groupHeader(key, '👥');
-        groups[key].forEach(item => { html += cardHTML(item); });
-      });
+      [...groups.entries()]
+        .filter(([, g]) => g.length > 0)
+        .sort((a, b) => a[0].localeCompare(b[0], 'ja'))
+        .forEach(([key, group]) => {
+          html += groupHeader(key, '👥', group.length);
+          group.forEach(item => { html += cardHTML(item, false); });
+        });
 
     } else if (sort === 'ground') {
-      items.sort((a, b) => (a.ground || '').localeCompare(b.ground || ''));
-      const groups = {};
-      const order  = [];
+      // グランドでグループ化
+      items.sort((a, b) => (a.ground || '').localeCompare(b.ground || '', 'ja'));
+      const groups = new Map();
       items.forEach(item => {
         const key = item.ground || 'グランド未定';
-        if (!groups[key]) { groups[key] = []; order.push(key); }
-        groups[key].push(item);
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(item);
       });
-      order.forEach(key => {
-        html += groupHeader(key, '🏟');
-        groups[key].forEach(item => { html += cardHTML(item); });
+      groups.forEach((group, key) => {
+        html += groupHeader(key, '🏟', group.length);
+        group.forEach(item => { html += cardHTML(item, false); });
       });
     }
 
@@ -1999,10 +1983,12 @@ function renderResultsList() {
 
   function toSortKey(raw) {
     if (!raw) return '9999-99-99';
+    const isoT = raw.match(/^(\d{4})-(\d{2})-(\d{2})T/);
+    if (isoT) return isoT[1]+'-'+isoT[2]+'-'+isoT[3];
     const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
     if (iso) return iso[0];
     const jp = raw.match(/(\d{1,2})月(\d{1,2})日/);
-    if (jp) return '2026-' + jp[1].padStart(2,'0') + '-' + jp[2].padStart(2,'0');
+    if (jp) return '2026-'+jp[1].padStart(2,'0')+'-'+jp[2].padStart(2,'0');
     return raw;
   }
 
@@ -2035,8 +2021,7 @@ function renderResultsList() {
     return;
   }
 
-  // 日付順ソート
-  played.sort((a,b) => toSortKey(a.rawDate).localeCompare(toSortKey(b.rawDate)));
+  played.sort((a, b) => toSortKey(a.rawDate).localeCompare(toSortKey(b.rawDate)));
 
   list.innerHTML = played.map(item => {
     const winColor = item.winner ? 'var(--green)' : 'var(--yellow)';
@@ -2048,7 +2033,7 @@ function renderResultsList() {
                  : item.winner === item.teamA ? 'color:#9ca3af;font-size:14px;'
                  : 'font-size:15px;color:#1f2937;font-weight:900;';
     return `
-    <div style="background:#ffffff;border:1px solid #d1d9e0;border-left:3px solid var(--green);border-radius:10px;padding:16px 18px;margin-bottom:10px;">
+    <div style="background:#fff;border:1px solid #d1d9e0;border-left:3px solid var(--green);border-radius:10px;padding:16px 18px;margin-bottom:10px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <span style="font-size:11px;font-weight:700;background:rgba(29,185,84,0.12);color:var(--green);border:1px solid rgba(29,185,84,0.3);border-radius:10px;padding:2px 10px;">✅ 第${item.gameNum}試合</span>
         <span style="font-size:12px;font-weight:700;color:${winColor};">${resultLabel}</span>
