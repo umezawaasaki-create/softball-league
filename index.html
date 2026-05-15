@@ -792,10 +792,14 @@
     <h3>試合結果を入力</h3>
     <div class="modal-subtitle" id="modal-pair-label"></div>
     <div id="games-container"></div>
-    <div class="modal-actions">
-      <button class="btn-delete" onclick="clearResults()" id="btn-clear" style="display:none">2試合まとめてクリア</button>
-      <button class="btn-cancel" onclick="closeModal('result-modal')">キャンセル</button>
-      <button class="btn-save" onclick="saveResults()">保存する</button>
+    <div class="modal-actions" style="flex-wrap:wrap;gap:8px;">
+      <button class="btn-delete" onclick="clearResults()" id="btn-clear"
+        style="order:0;flex:0 0 auto;">
+        🗑 両試合クリア
+      </button>
+      <div style="flex:1;"></div>
+      <button class="btn-cancel" onclick="closeModal('result-modal')" style="order:2;">キャンセル</button>
+      <button class="btn-save" onclick="saveResults()" style="order:3;">保存する</button>
     </div>
   </div>
 </div>
@@ -1194,7 +1198,7 @@ function openResultModal(teamA, teamB) {
   container.innerHTML = '';
 
   const hasAny = currentGames[0] || currentGames[1];
-  document.getElementById('btn-clear').style.display = hasAny ? 'block' : 'none';
+  document.getElementById('btn-clear').style.display = 'block';
 
   for (let i = 0; i < 2; i++) {
     const g = currentGames[i];
@@ -1219,7 +1223,11 @@ function openResultModal(teamA, teamB) {
       <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px 16px 14px;margin-bottom:14px;">
         <div style="font-size:12px;font-weight:700;color:var(--light);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
           <span>第${i+1}試合</span>
-          ${g ? `<button onclick="clearGame(${i})" style="background:rgba(230,57,70,0.12);color:var(--red);border:1px solid rgba(230,57,70,0.3);border-radius:6px;padding:3px 10px;font-size:11px;font-family:'Zen Kaku Gothic New',sans-serif;cursor:pointer;">クリア</button>` : ''}
+          <button onclick="clearGame(${i})"
+            style="background:rgba(230,57,70,0.10);color:var(--red);border:1px solid rgba(230,57,70,0.25);border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;font-family:'Zen Kaku Gothic New',sans-serif;cursor:pointer;opacity:${g ? 1 : 0.4};"
+            title="第${i+1}試合をクリア">
+            🗑 クリア
+          </button>
         </div>
 
         <div style="font-size:11px;color:var(--gray);margin-bottom:7px;">結果を選択</div>
@@ -1309,6 +1317,23 @@ function clearResults() {
 function clearGame(gameIdx) {
   const key = pairKey(currentTeamA, currentTeamB);
   const arr = results[key] ? [...results[key]] : [null, null];
+  if (!arr[gameIdx]) {
+    // データなし → UIのみリセット（勝者選択・スコアをクリア）
+    selectedWinner[gameIdx] = null;
+    // ボタンスタイルをリセット
+    ['A','B','draw'].forEach(c => {
+      const btn = document.getElementById('winner-' + gameIdx + '-' + c);
+      if (btn) btn.className = 'winner-btn';
+    });
+    const sa = document.getElementById('score-a-' + gameIdx);
+    const sb = document.getElementById('score-b-' + gameIdx);
+    const dt = document.getElementById('game-date-' + gameIdx);
+    if (sa) sa.value = '';
+    if (sb) sb.value = '';
+    if (dt) dt.value = '';
+    showToast('第' + (gameIdx + 1) + '試合の入力をクリアしました');
+    return;
+  }
   arr[gameIdx] = null;
   // If both null, remove the key entirely
   if (!arr[0] && !arr[1]) {
