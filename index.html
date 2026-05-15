@@ -629,7 +629,7 @@
     left: 50%;
     transform: translateX(-50%) translateY(60px);
     background: var(--green);
-    color: var(--navy);
+    color: #ffffff;
     font-weight: 700;
     font-size: 14px;
     padding: 10px 24px;
@@ -1219,13 +1219,18 @@ function openResultModal(teamA, teamB) {
     const winSelB = storedWinner === 'B' ? 'selected-win'  : storedWinner === 'A' ? 'selected-lose' : storedWinner === 'draw' ? 'selected-draw' : '';
     const winSelD = storedWinner === 'draw' ? 'selected-draw' : '';
 
+    // クリアボタンスタイル：データあり=濃い赤、なし=薄いグレー
+    const clearBtnStyle = g
+      ? 'background:rgba(230,57,70,0.10);color:var(--red);border:1px solid rgba(230,57,70,0.3);'
+      : 'background:rgba(0,0,0,0.04);color:#ccc;border:1px solid rgba(0,0,0,0.1);';
+
     container.innerHTML += `
       <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px 16px 14px;margin-bottom:14px;">
         <div style="font-size:12px;font-weight:700;color:var(--light);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
           <span>第${i+1}試合</span>
           <button onclick="clearGame(${i})"
             id="clear-btn-${i}"
-            style="background:${g ? 'rgba(230,57,70,0.18)' : 'rgba(230,57,70,0.06)'};color:${g ? 'var(--red)' : '#bbb'};border:1px solid ${g ? 'rgba(230,57,70,0.5)' : 'rgba(0,0,0,0.1)'};border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;font-family:'Zen Kaku Gothic New',sans-serif;cursor:pointer;"
+            style="${clearBtnStyle}border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;font-family:'Zen Kaku Gothic New',sans-serif;cursor:pointer;"
             title="第${i+1}試合をクリア">
             🗑 クリア
           </button>
