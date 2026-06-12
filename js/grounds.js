@@ -138,7 +138,12 @@ function toggleRecruitInModal() {
 
 function renderGrounds() {
   const grid = document.getElementById('ground-grid');
-  const activeGrounds = grounds.filter(g => !g.confirmed && g.recruiting !== false && String(g.recruiting).toUpperCase() !== 'FALSE');
+  const activeGrounds = grounds.filter(g => {
+    if (g.confirmed || String(g.confirmed).toUpperCase() === 'TRUE') return false;
+    const hasPending = applications.some(a => String(a.groundId) === String(g.id) && a.status === 'pending');
+    const isRecruiting = g.recruiting !== false && String(g.recruiting).toUpperCase() !== 'FALSE';
+    return isRecruiting || hasPending;
+  });
 
   if (activeGrounds.length === 0) {
     grid.innerHTML = '<div class="no-ground">まだグランドが登録されていません。<br>上のボタンから登録してください。</div>';
@@ -162,11 +167,11 @@ function renderGrounds() {
     const apps = applications.filter(a => String(a.groundId) === String(g.id));
     const hasApp = apps.some(a => a.status === 'pending');
 
-    const applyBtn = g.recruiting
-      ? (hasApp
-          ? `<button class="btn-apply-badge" onclick="openAppListModal('${g.id}')">📋 応募あり（${apps.filter(a=>a.status==='pending').length}件）</button>`
-          : `<button class="btn-recruit" style="background:var(--green);color:#ffffff;border:none;width:100%;" onclick="openApplyModal('${g.id}')">📩 対戦に応募する</button>`)
-      : '';
+    const applyBtn = hasApp
+      ? `<button class="btn-apply-badge" onclick="openAppListModal('${g.id}')">📋 応募あり（${apps.filter(a=>a.status==='pending').length}件）</button>`
+      : (g.recruiting && g.recruiting !== false && String(g.recruiting).toUpperCase() !== 'FALSE'
+          ? `<button class="btn-recruit" style="background:var(--green);color:#ffffff;border:none;width:100%;" onclick="openApplyModal('${g.id}')">📩 対戦に応募する</button>`
+          : '');
 
     grid.innerHTML += `
       <div class="ground-card">
