@@ -639,7 +639,7 @@ main {
 
 /* RESPONSIVE */
 @media (max-width: 640px) {
-  .header-inner { flex-wrap: wrap; }
+  .header-inner { flex-wrap: wrap; gap: 4px; }
   .season-badge { margin-left: 0; }
   .tab-btn { padding: 12px 14px; font-size: 12px; }
   main { padding: 20px 12px 48px; }
