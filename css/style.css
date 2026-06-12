@@ -75,6 +75,8 @@ header::before { content: none; }
 nav {
   background: #ffffff;
   box-shadow: none;
+  border-top: none;
+  border-bottom: none;
 }
 .nav-inner {
   max-width: 1200px;
@@ -89,7 +91,7 @@ nav {
   font-family: 'Zen Kaku Gothic New', sans-serif;
   font-size: 14px;
   font-weight: 700;
-  padding: 14px 24px;
+  padding: 14px 24px 11px;
   cursor: pointer;
   border-bottom: 3px solid transparent;
   transition: all 0.2s;
