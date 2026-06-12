@@ -31,16 +31,18 @@ function renderSchedule() {
         location: g ? (g.location || '') : '',
         teamA:    g ? g.team : '（グランド主）',
         teamB:    a.fromTeam || '',
-        message:  a.message  || ''
+        message:  a.message  || '',
+        ended:    g ? !!g.ended : false
       };
-    });
+    })
+    .filter(item => !item.ended);
 
   const coveredGroundIds = new Set(confirmedFromApps.map(x => x.groundId));
 
   const confirmedFromGrounds = grounds
     .filter(g => {
       const isConfirmed = String(g.confirmed).toUpperCase() === 'TRUE';
-      return isConfirmed && !coveredGroundIds.has(String(g.id));
+      return isConfirmed && !g.ended && !coveredGroundIds.has(String(g.id));
     })
     .map(g => {
       let teamA = g.team || '';
