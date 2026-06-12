@@ -23,7 +23,7 @@ body {
 /* HEADER */
 header {
   background: #ffffff;
-  border-bottom: 3px solid var(--green);
+  border-bottom: none;
   padding: 0 0 0 0;
   position: relative;
   overflow: hidden;
