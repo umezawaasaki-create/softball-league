@@ -62,11 +62,6 @@ function renderSchedule() {
   const confirmed = allConfirmed.filter(item => {
     if (seenKeys.has(item.key)) return false;
     seenKeys.add(item.key);
-    if (item.teamA && item.teamB && item.teamA !== '（グランド主）') {
-      const games = getGames(item.teamA, item.teamB);
-      const filledCount = games.filter(g => g !== null).length;
-      if (filledCount >= 1) return false;
-    }
     return true;
   });
 

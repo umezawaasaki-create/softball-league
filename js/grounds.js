@@ -138,7 +138,7 @@ function toggleRecruitInModal() {
 
 function renderGrounds() {
   const grid = document.getElementById('ground-grid');
-  const activeGrounds = grounds.filter(g => !g.confirmed);
+  const activeGrounds = grounds.filter(g => !g.confirmed && g.recruiting !== false && String(g.recruiting).toUpperCase() !== 'FALSE');
 
   if (activeGrounds.length === 0) {
     grid.innerHTML = '<div class="no-ground">まだグランドが登録されていません。<br>上のボタンから登録してください。</div>';
