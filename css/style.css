@@ -24,11 +24,11 @@ body {
 header {
   background: #ffffff;
   border-bottom: none;
-  padding: 0 0 0 0;
+  padding: 0;
   position: relative;
-  overflow: hidden;
 }
 header::before { content: none; }
+header img { display: block; border: none; vertical-align: bottom; }
 .header-inner {
   max-width: 1200px;
   margin: 0 auto;
